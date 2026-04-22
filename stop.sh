@@ -27,8 +27,8 @@ kill_port() {
     fi
 }
 
-kill_port 8000 "Backend"
-kill_port 3000 "Frontend"
+kill_port 8888 "Backend"
+kill_port 3111 "Frontend"
 
 echo ""
 echo "  All services stopped."

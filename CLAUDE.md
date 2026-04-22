@@ -25,7 +25,7 @@ Design and planning phase. Backend/`frontend`/`data`/`test` directories are scaf
 cd backend && uv sync
 
 # Backend — run dev server
-cd backend && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+cd backend && uv run uvicorn main:app --host 0.0.0.0 --port 8888 --reload
 
 # Lint — check
 ruff check .

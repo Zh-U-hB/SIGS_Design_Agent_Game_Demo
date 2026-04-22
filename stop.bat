@@ -9,8 +9,8 @@ echo    SIGS - Stop All Services
 echo  ========================================
 echo.
 
-call :kill_port 8000 "Backend"
-call :kill_port 3000 "Frontend"
+call :kill_port 8888 "Backend"
+call :kill_port 3111 "Frontend"
 
 echo.
 echo  All services stopped.

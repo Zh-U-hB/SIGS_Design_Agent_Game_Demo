@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "live-server --port=3000 --open=/pages/landing.html"
+    "dev": "live-server --port=3111 --open=/pages/landing.html"
   },
   "devDependencies": {
     "live-server": "^1.2.2"

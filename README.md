@@ -23,7 +23,7 @@ start.bat
 ```
 
 脚本会自动完成：
-1. 检测并释放端口占用（8000、3000）
+1. 检测并释放端口占用（8888、3111）
 2. 检查 uv 和 node 是否已安装
 3. 首次运行自动安装依赖（`uv sync`、`npm install`）
 4. 在两个新窗口启动后端和前端服务
@@ -32,9 +32,9 @@ start.bat
 
 | 地址 | 说明 |
 |------|------|
-| http://localhost:3000 | 前端页面 |
-| http://localhost:8000 | 后端 API |
-| http://localhost:8000/docs | API 文档（Swagger） |
+| http://localhost:3111 | 前端页面 |
+| http://localhost:8888 | 后端 API |
+| http://localhost:8888/docs | API 文档（Swagger） |
 
 ## 停止服务
 
@@ -54,10 +54,10 @@ stop.bat
 # 后端（在 backend/ 目录下）
 cd backend
 uv sync                  # 首次安装依赖
-uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uv run uvicorn main:app --host 0.0.0.0 --port 8888 --reload
 
 # 前端（在 frontend/ 目录下，新开一个终端）
 cd frontend
 npm install              # 首次安装依赖
-npx live-server --port=3000 --open=/pages/landing.html
+npx live-server --port=3111 --open=/pages/landing.html
 ```
