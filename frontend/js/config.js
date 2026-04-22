@@ -20,12 +20,12 @@ const PAGES = {
 
 // 情绪标签配置
 const EMOTION_TAGS = [
-    { emoji: "😤", label: "不够用", value: "limited" },
-    { emoji: "😌", label: "太单调", value: "boring" },
+    { emoji: "🧍", label: "太拥挤", value: "crowded" },
+    { emoji: "📄", label: "太单调", value: "boring" },
     { emoji: "🌿", label: "想要绿色", value: "green" },
     { emoji: "☀️", label: "采光不好", value: "dark" },
-    { emoji: "🧍", label: "太拥挤", value: "crowded" },
-    { emoji: "🔇", label: "太吵了", value: "noisy" }
+    { emoji: "🔇", label: "太吵了", value: "noisy" },
+    { emoji: "🎒", label: "不够用", value: "limited" }
 ];
 
 // 应用状态
@@ -78,6 +78,7 @@ if (typeof window !== 'undefined') {
     window.API_KEY = API_KEY;
     window.PAGES = PAGES;
     window.EMOTION_TAGS = EMOTION_TAGS;
+    window.APP_STATE = APP_STATE;
     window.getState = getState;
     window.setState = setState;
     window.clearState = clearState;
@@ -91,6 +92,7 @@ if (typeof module !== 'undefined' && module.exports) {
         API_KEY,
         PAGES,
         EMOTION_TAGS,
+        APP_STATE,
         getState,
         setState,
         clearState,

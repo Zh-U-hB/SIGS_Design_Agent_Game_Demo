@@ -1,179 +1,145 @@
-<!-- gallery.html — 阶段六：社区沉淀
-     职责：展示统计数据、校园地图光点可视化、设计卡片列表、排序切换和详情弹窗 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区创意</title>
+    <title>社区创意 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <style>
-        .stats-banner {
-            display: flex;
-            justify-content: center;
-            gap: var(--space-xl);
-            padding: var(--space-lg) 0;
-            margin-bottom: var(--space-xl);
-            border-bottom: 1px solid var(--border-color);
-        }
-        .stat-item {
-            text-align: center;
-        }
-        .stat-item .number {
-            font-size: var(--font-size-xl);
-            font-weight: 700;
-            color: var(--accent-blue);
-        }
-        .stat-item .label {
-            font-size: var(--font-size-sm);
-            color: var(--text-secondary);
-        }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-lg);
-        }
-        .section-header h2 {
-            font-size: var(--font-size-lg);
-        }
-        .sort-toggle {
-            display: flex;
-            gap: var(--space-sm);
-        }
-        .sort-toggle button {
-            padding: var(--space-xs) var(--space-md);
-            border-radius: var(--radius-full);
-            font-size: var(--font-size-sm);
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-        }
-        .sort-toggle button.active {
-            background: var(--accent-blue);
-            color: var(--bg-primary);
-        }
-        .map-container {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-xl);
-        }
-        .design-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: var(--space-lg);
-            margin-bottom: var(--space-xl);
-        }
-        .design-card .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: var(--space-sm) var(--space-md);
-        }
-        .design-card .excerpt {
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
-            padding: 0 var(--space-md) var(--space-sm);
-        }
-        .like-btn {
-            display: flex;
-            align-items: center;
-            gap: var(--space-xs);
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
-        }
-        .like-btn:hover {
-            color: #ff4757;
-        }
-        /* Modal */
-        .modal-content {
-            position: relative;
-        }
-        .modal-design-images {
-            margin-bottom: var(--space-lg);
-        }
-        .modal-detail p {
-            margin-bottom: var(--space-sm);
-            color: var(--text-secondary);
-        }
-        .modal-detail .label {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-    </style>
 </head>
 <body>
-    <div class="page-container">
-        <main class="main-content" style="justify-content: flex-start; padding-top: var(--space-xl);">
-            <h1 style="text-align: center; margin-bottom: var(--space-md);">所有人的校园想象</h1>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: var(--space-xl);">
-                这里的每一个点，都是一个人在这座校园里的感受与期待
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="landing.html" class="nav-logo">
+                <span style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                         alt="Tsinghua SIGS"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
+                        <circle cx="24" cy="24" r="20" fill="white"/>
+                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <span>清华SIGS</span>
+                </span>
+            </a>
+            <div class="nav-center">
+                <div class="nav-links">
+                    <a href="landing.html" class="nav-link">
+                        <span lang="zh">首页</span><span lang="en">Home</span>
+                    </a>
+                    <a href="explore.html" class="nav-link">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </a>
+                    <a href="create.html" class="nav-link">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </a>
+                    <a href="gallery.html" class="nav-link">
+                        <span lang="zh">社区</span><span lang="en">Gallery</span>
+                    </a>
+                </div>
+            </div>
+            <div class="lang-switcher" id="langSwitcher">
+                <span class="lang-active" lang="zh">中文</span>
+                <span class="lang-separator">/</span>
+                <span lang="en">EN</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Stage 5: Gallery -->
+    <section id="stage-gallery" class="section visible">
+        <div class="gallery-header">
+            <span class="explore-label">Stage 05</span>
+            <h2 class="gallery-title">
+                <span lang="zh">清华SIGS所有人的校园想象</span>
+                <span lang="en">Tsinghua SIGS Community Campus Design Gallery</span>
+            </h2>
+            <div class="gallery-title-en">
+                <span lang="zh">清华SIGS所有人的校园想象</span>
+                <span lang="en">Community Campus Design Gallery</span>
+            </div>
+            <p class="gallery-subtitle">
+                <span lang="zh">这里的每一个点，都是清华人在这座校园里的感受与期待</span>
+                <span lang="en">Every point here represents a Tsinghua person's feelings and expectations for this campus</span>
             </p>
-
-            <div class="stats-banner" id="stats-banner">
-                <div class="stat-item">
-                    <div class="number" id="stat-visitors">0</div>
-                    <div class="label">位访客参与</div>
-                </div>
-                <div class="stat-item">
-                    <div class="number" id="stat-designs">0</div>
-                    <div class="label">个创意设计</div>
-                </div>
-                <div class="stat-item">
-                    <div class="number" id="stat-areas">0</div>
-                    <div class="label">个区域覆盖</div>
-                </div>
-            </div>
-
-            <div class="map-container" id="map-container">
-                校园地图光点可视化占位
-            </div>
-
-            <div class="section-header">
-                <h2>创意设计</h2>
-                <div class="sort-toggle">
-                    <button class="active" data-sort="created_at">最新</button>
-                    <button data-sort="likes_count">最受欢迎</button>
-                </div>
-            </div>
-
-            <div class="design-grid" id="design-grid">
-                <!-- TODO: 从 API 加载设计卡片数据 -->
-            </div>
-        </main>
-    </div>
-
-    <!-- 设计详情弹窗 -->
-    <div class="modal-overlay" id="design-modal">
-        <div class="modal-content">
-            <button class="modal-close" id="modal-close">&times;</button>
-            <div class="modal-design-images">
-                <div class="comparison-container">
-                    <div class="comparison-item">
-                        <p class="comparison-label">原始场景</p>
-                        <div class="skeleton" style="aspect-ratio: 16/9;"></div>
+            <div class="gallery-metrics">
+                <div class="metric">
+                    <div class="metric-value" id="visitorCount">128</div>
+                    <div class="metric-label">
+                        <span lang="zh">位访客参与</span><span lang="en">Visitors</span>
                     </div>
-                    <div class="comparison-item">
-                        <p class="comparison-label">设计效果</p>
-                        <div class="skeleton" style="aspect-ratio: 16/9;"></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="areaCount">23</div>
+                    <div class="metric-label">
+                        <span lang="zh">个区域覆盖</span><span lang="en">Areas</span>
                     </div>
                 </div>
             </div>
-            <div class="modal-detail">
-                <p><span class="label">用户的想法：</span><span id="modal-input">-</span></p>
-                <p><span class="label">情绪标签：</span><span id="modal-emotions">-</span></p>
-                <p><span class="label">AI 回应：</span><span id="modal-ai-response">-</span></p>
-                <p><span class="label">点赞数：</span><span id="modal-likes">0</span></p>
+        </div>
+
+        <div class="gallery-map-wrapper">
+            <div class="gallery-map">
+                <div class="map-canvas" id="galleryMapCanvas">
+                    <!-- Zones -->
+                    <div class="map-zone" style="width: 140px; height: 90px; top: 8%; left: 8%;">
+                        <span class="map-zone-label"><span lang="zh">图书馆</span><span lang="en">Library</span></span>
+                    </div>
+                    <div class="map-zone" style="width: 110px; height: 110px; top: 48%; left: 4%;">
+                        <span class="map-zone-label"><span lang="zh">信息楼</span><span lang="en">Info</span></span>
+                    </div>
+                    <div class="map-zone" style="width: 100px; height: 100px; top: 52%; left: 24%;">
+                        <span class="map-zone-label"><span lang="zh">能源楼</span><span lang="en">Energy</span></span>
+                    </div>
+                    <div class="map-zone" style="width: 150px; height: 80px; top: 12%; left: 44%;">
+                        <span class="map-zone-label"><span lang="zh">国际中心</span><span lang="en">Intl Ctr</span></span>
+                    </div>
+                    <div class="map-zone" style="width: 90px; height: 130px; top: 33%; left: 64%;">
+                        <span class="map-zone-label"><span lang="zh">宿舍</span><span lang="en">Dorm</span></span>
+                    </div>
+                    <div class="map-zone" style="width: 120px; height: 70px; top: 68%; left: 48%;">
+                        <span class="map-zone-label"><span lang="zh">体育馆</span><span lang="en">Gym</span></span>
+                    </div>
+                    <div class="map-zone" style="width: 80px; height: 60px; top: 18%; left: 78%;">
+                        <span class="map-zone-label"><span lang="zh">食堂</span><span lang="en">Cafeteria</span></span>
+                    </div>
+
+                    <!-- Idea markers will be populated by API -->
+                </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="modal-close" id="modalClose">×</button>
+            <h3 class="modal-title">
+                <span lang="zh">设计创意</span><span lang="en">Design Idea</span>
+            </h3>
+            <div class="modal-content-box">
+                <div class="modal-label">
+                    <span lang="zh">原始想法</span><span lang="en">Original Idea</span>
+                </div>
+                <p class="modal-text" id="modalInputText"></p>
+            </div>
+            <div class="modal-content-box">
+                <div class="modal-label">
+                    <span lang="zh">AI设计方案</span><span lang="en">AI Design Solution</span>
+                </div>
+                <p class="modal-text" id="modalResultText"></p>
+            </div>
+            <img class="modal-image" id="modalImage" style="display: none;" alt="Generated Design">
         </div>
     </div>
 
@@ -183,23 +149,96 @@
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
     <script>
-        // TODO: 从 API 加载统计数据、地图光点和设计列表
-        // 加载统计: apiGet("/stats")
-        // 加载地图: apiGet("/designs/map")
-        // 加载设计列表: apiGet("/designs")
+        // Language Switcher
+        const langSwitcher = document.getElementById('langSwitcher');
 
-        // 排序切换
-        document.querySelectorAll(".sort-toggle button").forEach(btn => {
-            btn.addEventListener("click", () => {
-                document.querySelectorAll(".sort-toggle button").forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                // TODO: 按新排序重新加载设计列表
-            });
+        function updateLanguageDisplay() {
+            if (APP_STATE.language === 'en') {
+                document.body.classList.add('lang-en');
+            } else {
+                document.body.classList.remove('lang-en');
+            }
+
+            const zhSpan = langSwitcher.querySelector('[lang="zh"]');
+            const enSpan = langSwitcher.querySelector('[lang="en"]');
+
+            if (APP_STATE.language === 'zh') {
+                zhSpan.classList.add('lang-active');
+                enSpan.classList.remove('lang-active');
+            } else {
+                enSpan.classList.add('lang-active');
+                zhSpan.classList.remove('lang-active');
+            }
+        }
+
+        updateLanguageDisplay();
+
+        langSwitcher.addEventListener('click', (e) => {
+            const clickedSpan = e.target.closest('[lang]');
+            if (clickedSpan) {
+                const clickedLang = clickedSpan.getAttribute('lang');
+                if (clickedLang === APP_STATE.language) return;
+            }
+
+            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', APP_STATE.language);
+            updateLanguageDisplay();
+
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
         });
 
-        // 弹窗控制
-        document.getElementById("modal-close").addEventListener("click", () => {
-            document.getElementById("design-modal").classList.remove("active");
+        // Render demo markers
+        function renderDemoMarkers() {
+            const demoDesigns = [
+                { x: 22, y: 18, input: APP_STATE.language === 'zh' ? '这里的长椅太少了' : 'Too few benches here', result: APP_STATE.language === 'zh' ? '添加了休息区' : 'Added Rest Area', likes: 1 },
+                { x: 38, y: 42, input: APP_STATE.language === 'zh' ? '想要更多绿色' : 'Want more greenery', result: APP_STATE.language === 'zh' ? '种植了树木' : 'Planted Trees', likes: 5 },
+                { x: 12, y: 58, input: APP_STATE.language === 'zh' ? '晚上太黑了' : 'Too dark at night', result: APP_STATE.language === 'zh' ? '增加了照明' : 'Added Lighting', likes: 2 }
+            ];
+
+            const canvas = document.getElementById('galleryMapCanvas');
+            demoDesigns.forEach(design => {
+                const marker = document.createElement('div');
+                marker.className = 'idea-marker';
+                marker.style.width = `${Math.max(10, Math.min(20, 10 + design.likes))}px`;
+                marker.style.height = marker.style.width;
+                marker.style.top = `${design.y}%`;
+                marker.style.left = `${design.x}%`;
+
+                if (design.likes > 2) {
+                    marker.classList.add('cluster');
+                }
+
+                marker.dataset.input = design.input;
+                marker.dataset.result = design.result;
+
+                marker.addEventListener('click', () => {
+                    document.getElementById('modalInputText').textContent = design.input;
+                    document.getElementById('modalResultText').textContent = design.result;
+                    document.getElementById('modalImage').style.display = 'none';
+                    document.getElementById('modalOverlay').classList.add('visible');
+                });
+
+                canvas.appendChild(marker);
+            });
+        }
+
+        renderDemoMarkers();
+
+        // Modal controls
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
+
+        modalClose.addEventListener('click', () => {
+            modalOverlay.classList.remove('visible');
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('visible');
+            }
         });
     </script>
 </body>

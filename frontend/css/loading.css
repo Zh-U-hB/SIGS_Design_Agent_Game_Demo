@@ -1,80 +1,56 @@
-/* loading.css — 加载状态样式
-   职责：定义加载遮罩、旋转器、进度条、骨架屏、分步加载文案的样式 */
+/* loading.css — Loading Animation Styles */
+/* 职责：定义加载状态、旋转器、加载消息样式 */
 
-/* 加载遮罩 */
-.loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(10, 10, 10, 0.8);
+.loading-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: var(--space-lg);
-    z-index: 100;
 }
 
-/* 旋转加载器 */
 .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--accent-blue);
+    position: relative;
+    width: 64px;
+    height: 64px;
+    margin-bottom: var(--spacing-xl);
+}
+
+.spinner-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--color-border-subtle);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin 1.2s linear infinite;
+}
+
+.spinner-ring:nth-child(2) {
+    width: 80%;
+    height: 80%;
+    top: 10%;
+    left: 10%;
+    border-color: var(--color-accent-primary);
+    border-top-color: transparent;
+    animation-duration: 0.8s;
 }
 
 @keyframes spin {
+    from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
 
-/* 进度条 */
-.progress-bar {
-    width: 100%;
-    height: 4px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-full);
-    overflow: hidden;
+.loading-message {
+    font-size: 17px;
+    color: var(--color-text-secondary);
+    animation: fade-up 0.5s ease;
 }
 
-.progress-bar .progress-fill {
-    height: 100%;
-    background: var(--accent-blue);
-    border-radius: var(--radius-full);
-    transition: width var(--transition-normal);
-}
-
-/* 骨架屏 */
-.skeleton {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-/* 分步加载文案动画 */
-.loading-steps {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    text-align: center;
-    color: var(--text-secondary);
-}
-
-.loading-steps .step {
-    opacity: 0;
-    animation: fadeIn 0.5s ease forwards;
-}
-
-.loading-steps .step:nth-child(1) { animation-delay: 0s; }
-.loading-steps .step:nth-child(2) { animation-delay: 2s; }
-.loading-steps .step:nth-child(3) { animation-delay: 4s; }
-.loading-steps .step:nth-child(4) { animation-delay: 6s; }
-
-@keyframes fadeIn {
-    to { opacity: 1; }
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

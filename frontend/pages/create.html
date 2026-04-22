@@ -1,152 +1,327 @@
-<!-- create.html — 阶段三：创意输入
-     职责：提供情绪标签选择、自由文字输入、可选补充信息，提交后触发 Agent 处理 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>创意输入</title>
+    <title>创意输入 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <style>
-        .section-title {
-            font-size: var(--font-size-lg);
-            margin-bottom: var(--space-md);
-        }
-        .emotion-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-xl);
-        }
-        .input-hint {
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
-            margin-bottom: var(--space-sm);
-        }
-        .form-textarea {
-            min-height: 150px;
-        }
-        .optional-section {
-            margin-top: var(--space-lg);
-            padding-top: var(--space-lg);
-            border-top: 1px solid var(--border-color);
-        }
-        .optional-toggle {
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-        }
-        .optional-content {
-            display: none;
-            margin-top: var(--space-md);
-        }
-        .optional-content.open {
-            display: block;
-        }
-        .submit-area {
-            text-align: center;
-            margin-top: var(--space-xl);
-        }
-    </style>
 </head>
 <body>
-    <div class="page-container">
-        <main class="main-content" style="justify-content: flex-start; padding-top: var(--space-xl);">
-            <h2 class="section-title">先说说你的感受（可选）</h2>
-            <div class="emotion-tags" id="emotion-tags"></div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
-            <h2 class="section-title">用你最自然的语言说就好</h2>
-            <p class="input-hint">哪怕只有一句话</p>
-            <div class="form-group">
-                <textarea class="form-textarea" id="user-input"
-                    placeholder="这里的长椅太少了，下课想坐下来发发呆"></textarea>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="landing.html" class="nav-logo">
+                <span style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                         alt="Tsinghua SIGS"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
+                        <circle cx="24" cy="24" r="20" fill="white"/>
+                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <span>清华SIGS</span>
+                </span>
+            </a>
+            <div class="nav-center">
+                <div class="nav-links">
+                    <a href="landing.html" class="nav-link">
+                        <span lang="zh">首页</span><span lang="en">Home</span>
+                    </a>
+                    <a href="explore.html" class="nav-link">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </a>
+                    <a href="create.html" class="nav-link">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </a>
+                    <a href="gallery.html" class="nav-link">
+                        <span lang="zh">社区</span><span lang="en">Gallery</span>
+                    </a>
+                </div>
+            </div>
+            <div class="lang-switcher" id="langSwitcher">
+                <span class="lang-active" lang="zh">中文</span>
+                <span class="lang-separator">/</span>
+                <span lang="en">EN</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Stage 3: Create -->
+    <section id="stage-create" class="section visible">
+        <div class="create-container">
+            <div class="create-header">
+                <span class="explore-label">Stage 03</span>
+                <h2 class="create-title">
+                    <span lang="zh">告诉我们你的想法</span>
+                    <span lang="en">Share Your Ideas with Us</span>
+                </h2>
+                <div class="create-title-en">
+                    <span lang="zh">分享你的创意想法</span>
+                    <span lang="en">Share Your Creative Ideas</span>
+                </div>
+                <p class="create-subtitle">
+                    <span lang="zh">用你最自然的语言说就好，哪怕只有一句话</span>
+                    <span lang="en">Just use your natural language, even if it's just one sentence</span>
+                </p>
             </div>
 
-            <div class="optional-section">
-                <span class="optional-toggle" id="toggle-optional">+ 补充更多细节</span>
-                <div class="optional-content" id="optional-content">
-                    <div class="form-group">
-                        <label class="form-label">我希望在这个时间使用</label>
-                        <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
-                            <button class="tag" data-time="早晨">早晨</button>
-                            <button class="tag" data-time="午后">午后</button>
-                            <button class="tag" data-time="傍晚">傍晚</button>
-                            <button class="tag" data-time="夜晚">夜晚</button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">我想在这里</label>
-                        <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
-                            <button class="tag" data-usage="独处">独处</button>
-                            <button class="tag" data-usage="和朋友">和朋友</button>
-                            <button class="tag" data-usage="工作">工作</button>
-                            <button class="tag" data-usage="休息">休息</button>
-                            <button class="tag" data-usage="路过">路过</button>
-                        </div>
-                    </div>
+            <div class="emotion-grid">
+                <div class="emotion-card" data-emotion="crowded">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="14" cy="10" r="5"/>
+                        <path d="M6 24C6 19.58 9.58 16 14 16C18.42 16 22 19.58 22 24" stroke-linecap="round"/>
+                        <circle cx="22" cy="8" r="3"/>
+                        <path d="M18 16C18 13.79 19.79 12 22 12C24.21 12 26 13.79 26 16" stroke-linecap="round"/>
+                    </svg>
+                    <span class="emotion-text"><span lang="zh">太拥挤</span><span lang="en">Too Crowded</span></span>
+                </div>
+                <div class="emotion-card" data-emotion="boring">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="4" y="4" width="20" height="20" rx="4" stroke-linecap="round"/>
+                        <path d="M9 14H19M9 10H15M9 18H17" stroke-linecap="round" stroke-dasharray="2 2"/>
+                    </svg>
+                    <span class="emotion-text"><span lang="zh">太单调</span><span lang="en">Too Boring</span></span>
+                </div>
+                <div class="emotion-card" data-emotion="green">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 4V24M14 4C14 4 8 8 8 12C8 15.31 10.69 18 14 18C17.31 18 20 15.31 20 12C20 8 14 4 14 4Z" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 24C14 24 8 20 8 16C8 12.69 10.69 10 14 10" stroke-linecap="round"/>
+                        <path d="M14 24C14 24 20 20 20 16C20 12.69 17.31 10 14 10" stroke-linecap="round"/>
+                    </svg>
+                    <span class="emotion-text"><span lang="zh">想要绿色</span><span lang="en">Want Greenery</span></span>
+                </div>
+                <div class="emotion-card" data-emotion="dark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="14" cy="14" r="9"/>
+                        <path d="M14 8V14L18 18" stroke-linecap="round"/>
+                        <path d="M22 6L26 2" stroke-linecap="round"/>
+                        <path d="M23 8L26 5" stroke-linecap="round"/>
+                    </svg>
+                    <span class="emotion-text"><span lang="zh">采光不好</span><span lang="en">Poor Lighting</span></span>
+                </div>
+                <div class="emotion-card" data-emotion="noisy">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M7 14H21M3 14C3 14 7 8 14 8C21 8 25 14 25 14" stroke-linecap="round"/>
+                        <path d="M7 14C7 14 11 20 14 20C17 20 21 14 21 14" stroke-linecap="round"/>
+                        <circle cx="14" cy="14" r="2" fill="currentColor"/>
+                        <path d="M4 8L2 6M24 8L26 6M4 20L2 22M24 20L26 22" stroke-linecap="round"/>
+                    </svg>
+                    <span class="emotion-text"><span lang="zh">太吵了</span><span lang="en">Too Noisy</span></span>
+                </div>
+                <div class="emotion-card" data-emotion="limited">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="6" y="8" width="16" height="14" rx="2" stroke-linecap="round"/>
+                        <path d="M10 8V6C10 4.34 11.34 3 13 3H15C16.66 3 18 4.34 18 6V8" stroke-linecap="round"/>
+                        <path d="M14 13V17M12 15H16" stroke-linecap="round"/>
+                    </svg>
+                    <span class="emotion-text"><span lang="zh">不够用</span><span lang="en">Insufficient Space</span></span>
                 </div>
             </div>
 
-            <div class="submit-area">
-                <button class="btn btn-primary" id="btn-submit">让AI来理解我的想法 →</button>
+            <div class="input-panel">
+                <div class="input-group">
+                    <label class="input-label">
+                        <span lang="zh">你的想法</span><span lang="en">Your Ideas</span>
+                    </label>
+                    <p class="input-helper">
+                        <span lang="zh">比如：这里的长椅太少了，下课想坐下来发发呆</span>
+                        <span lang="en">e.g.: There are too few benches here, I want to sit and daydream after class</span>
+                    </p>
+                    <textarea class="text-area" id="userInput" placeholder="希望这个角落能种一棵树，夏天可以乘凉
+感觉这条路走起来不安全，晚上没有灯
+这里太单调了，想要更多颜色
+
+Hope to plant a tree in this corner for summer shade
+Feel unsafe walking here at night without lights
+This place is too monotonous, want more colors" data-placeholder-zh="希望这个角落能种一棵树，夏天可以乘凉
+感觉这条路走起来不安全，晚上没有灯
+这里太单调了，想要更多颜色" data-placeholder-en="Hope to plant a tree in this corner for summer shade
+Feel unsafe walking here at night without lights
+This place is too monotonous, want more colors"></textarea>
+                </div>
+
+                <div class="expand-toggle" id="expandToggle">
+                    <span class="toggle-label">
+                        <span lang="zh">补充信息（可选）</span><span lang="en">Additional Info (Optional)</span>
+                    </span>
+                    <svg class="toggle-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M5 8L10 13L15 8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <div class="expand-content">
+                    <div class="option-row">
+                        <div class="option-row-title">
+                            <span lang="zh">使用时间</span><span lang="en">Time of Day</span>
+                        </div>
+                        <div class="chip-group" id="timeChips">
+                            <span class="chip" data-option="time" data-value="morning"><span lang="zh">早晨</span><span lang="en">Morning</span></span>
+                            <span class="chip" data-option="time" data-value="afternoon"><span lang="zh">午后</span><span lang="en">Afternoon</span></span>
+                            <span class="chip" data-option="time" data-value="evening"><span lang="zh">傍晚</span><span lang="en">Evening</span></span>
+                            <span class="chip" data-option="time" data-value="night"><span lang="zh">夜晚</span><span lang="en">Night</span></span>
+                        </div>
+                    </div>
+
+                    <div class="option-row">
+                        <div class="option-row-title">
+                            <span lang="zh">使用方式</span><span lang="en">Activity</span>
+                        </div>
+                        <div class="chip-group" id="activityChips">
+                            <span class="chip" data-option="activity" data-value="alone"><span lang="zh">独处</span><span lang="en">Alone</span></span>
+                            <span class="chip" data-option="activity" data-value="friends"><span lang="zh">和朋友</span><span lang="en">Friends</span></span>
+                            <span class="chip" data-option="activity" data-value="work"><span lang="zh">工作</span><span lang="en">Work</span></span>
+                            <span class="chip" data-option="activity" data-value="rest"><span lang="zh">休息</span><span lang="en">Rest</span></span>
+                            <span class="chip" data-option="activity" data-value="pass-by"><span lang="zh">路过</span><span lang="en">Pass By</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="submit-btn" id="submitBtn">
+                    <span lang="zh">让AI来理解我的想法 →</span>
+                    <span lang="en">Let AI Understand My Ideas →</span>
+                </button>
             </div>
-        </main>
-    </div>
+        </div>
+    </section>
+
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
     <script>
-        // 渲染情绪标签
-        const tagsContainer = document.getElementById("emotion-tags");
-        const selectedEmotions = [];
+        // Language Switcher
+        const langSwitcher = document.getElementById('langSwitcher');
 
-        EMOTION_TAGS.forEach(tag => {
-            const btn = document.createElement("button");
-            btn.className = "tag";
-            btn.textContent = `${tag.emoji} ${tag.label}`;
-            btn.addEventListener("click", () => {
-                btn.classList.toggle("tag-selected");
-                const idx = selectedEmotions.indexOf(tag.label);
-                if (idx > -1) {
-                    selectedEmotions.splice(idx, 1);
+        function updateLanguageDisplay() {
+            if (APP_STATE.language === 'en') {
+                document.body.classList.add('lang-en');
+            } else {
+                document.body.classList.remove('lang-en');
+            }
+
+            const zhSpan = langSwitcher.querySelector('[lang="zh"]');
+            const enSpan = langSwitcher.querySelector('[lang="en"]');
+
+            if (APP_STATE.language === 'zh') {
+                zhSpan.classList.add('lang-active');
+                enSpan.classList.remove('lang-active');
+            } else {
+                enSpan.classList.add('lang-active');
+                zhSpan.classList.remove('lang-active');
+            }
+
+            // Update textarea placeholder
+            const userInput = document.getElementById('userInput');
+            if (userInput) {
+                const zhPlaceholder = userInput.getAttribute('data-placeholder-zh');
+                const enPlaceholder = userInput.getAttribute('data-placeholder-en');
+                userInput.placeholder = APP_STATE.language === 'zh' ? zhPlaceholder : enPlaceholder;
+            }
+        }
+
+        updateLanguageDisplay();
+
+        langSwitcher.addEventListener('click', (e) => {
+            const clickedSpan = e.target.closest('[lang]');
+            if (clickedSpan) {
+                const clickedLang = clickedSpan.getAttribute('lang');
+                if (clickedLang === APP_STATE.language) return;
+            }
+
+            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', APP_STATE.language);
+            updateLanguageDisplay();
+
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
+        });
+
+        // Initialize selected emotions array
+        APP_STATE.selectedEmotions = [];
+
+        // Emotion cards
+        document.querySelectorAll('.emotion-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const emotion = card.dataset.emotion;
+                const index = APP_STATE.selectedEmotions.indexOf(emotion);
+
+                if (index > -1) {
+                    APP_STATE.selectedEmotions.splice(index, 1);
+                    card.classList.remove('selected');
                 } else {
-                    selectedEmotions.push(tag.label);
+                    APP_STATE.selectedEmotions.push(emotion);
+                    card.classList.add('selected');
                 }
             });
-            tagsContainer.appendChild(btn);
         });
 
-        // 可选补充区域切换
-        document.getElementById("toggle-optional").addEventListener("click", () => {
-            document.getElementById("optional-content").classList.toggle("open");
+        // Expand toggle
+        const expandToggle = document.getElementById('expandToggle');
+        expandToggle.addEventListener('click', () => {
+            expandToggle.classList.toggle('open');
         });
 
-        // 提交创意
-        document.getElementById("btn-submit").addEventListener("click", async () => {
-            const userInput = document.getElementById("user-input").value.trim();
-            if (!userInput) return;
+        // Time chips
+        document.querySelectorAll('#timeChips .chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('#timeChips .chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                APP_STATE.timePreference = chip.dataset.value;
+            });
+        });
 
-            try {
-                // TODO: 调用 POST /api/v1/designs/input
-                // const result = await apiPost("/designs/input", {
-                //     session_id: getState("sessionId"),
-                //     ...getState("selectedLocation"),
-                //     emotion_tags: selectedEmotions,
-                //     user_input: userInput,
-                // });
-                // setState("designId", result.data.id);
-                setState("emotionTags", selectedEmotions);
-                setState("userInput", userInput);
-                navigateTo(PAGES.CONFIRM);
-            } catch (err) {
-                console.error("提交失败:", err);
+        // Activity chips
+        document.querySelectorAll('#activityChips .chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('#activityChips .chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                APP_STATE.activityPreference = chip.dataset.value;
+            });
+        });
+
+        // Submit button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.addEventListener('click', async () => {
+            const userInput = document.getElementById('userInput').value.trim();
+
+            // Validation
+            if (!APP_STATE.selectedLocation) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请先选择一个位置' : 'Please select a location first',
+                    'warning'
+                );
+                return;
             }
+
+            if (!userInput && APP_STATE.selectedEmotions.length === 0) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请告诉我们你的想法或选择情绪标签' : 'Please share your ideas or select emotion tags',
+                    'warning'
+                );
+                return;
+            }
+
+            // Store state
+            setState('selectedEmotions', APP_STATE.selectedEmotions);
+            setState('userInput', userInput);
+            setState('timePreference', APP_STATE.timePreference);
+            setState('activityPreference', APP_STATE.activityPreference);
+
+            // Navigate to generate page
+            window.location.href = 'generate.html';
         });
     </script>
 </body>

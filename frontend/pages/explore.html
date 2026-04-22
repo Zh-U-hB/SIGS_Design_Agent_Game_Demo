@@ -1,89 +1,230 @@
-<!-- explore.html — 阶段二：场景漫游与选点
-     职责：展示 UE Pixel Streaming 三维校园场景，用户选择感兴趣的位置后跳转到创意输入 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>场景漫游</title>
+    <title>场景漫游 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <style>
-        .ue-viewport {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-size: var(--font-size-lg);
-            margin-bottom: var(--space-lg);
-        }
-        .location-info {
-            text-align: center;
-            margin-bottom: var(--space-lg);
-        }
-        .location-info .label {
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
-            margin-bottom: var(--space-sm);
-        }
-        .location-info .name {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
-        }
-        .explore-hint {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
-            margin-top: var(--space-md);
-        }
-    </style>
 </head>
 <body>
-    <div class="page-container">
-        <main class="main-content">
-            <div class="ue-viewport" id="ue-viewport">
-                UE Pixel Streaming 占位区域
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="landing.html" class="nav-logo">
+                <span style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                         alt="Tsinghua SIGS"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
+                        <circle cx="24" cy="24" r="20" fill="white"/>
+                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <span>清华SIGS</span>
+                </span>
+            </a>
+            <div class="nav-center">
+                <div class="nav-links">
+                    <a href="landing.html" class="nav-link">
+                        <span lang="zh">首页</span><span lang="en">Home</span>
+                    </a>
+                    <a href="explore.html" class="nav-link">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </a>
+                    <a href="create.html" class="nav-link">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </a>
+                    <a href="gallery.html" class="nav-link">
+                        <span lang="zh">社区</span><span lang="en">Gallery</span>
+                    </a>
+                </div>
             </div>
-            <div class="location-info">
-                <p class="label">当前选中</p>
-                <p class="name" id="location-name">尚未选择位置</p>
+            <div class="lang-switcher" id="langSwitcher">
+                <span class="lang-active" lang="zh">中文</span>
+                <span class="lang-separator">/</span>
+                <span lang="en">EN</span>
             </div>
-            <div style="text-align: center;">
-                <button class="btn btn-primary" id="btn-continue" disabled>选择这里，告诉AI我的想法 →</button>
+        </div>
+    </nav>
+
+    <!-- Stage 2: Explore -->
+    <section id="stage-explore" class="section visible">
+        <div class="explore-intro">
+            <span class="explore-label">Stage 02</span>
+            <h2 class="explore-title">
+                <span lang="zh">走进清华SIGS校园</span>
+                <span lang="en">Explore the Tsinghua SIGS Campus</span>
+            </h2>
+            <div class="explore-title-en">
+                <span lang="zh">探索清华SIGS校园</span>
+                <span lang="en">Explore Tsinghua SIGS Campus</span>
             </div>
-            <p class="explore-hint">走进这座校园，找一个让你有感觉的地方</p>
-        </main>
-    </div>
+            <p class="explore-desc">
+                <span lang="zh">找一个让你有感觉的地方——可以是你觉得不够好的，也可以是你想象中它本来的样子</span>
+                <span lang="en">Find a place that speaks to you—somewhere that needs improvement, or somewhere as you imagine it could be</span>
+            </p>
+        </div>
+
+        <div class="campus-map-container">
+            <div class="campus-map">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.8958!2d114.0633!3d22.5947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x340406f3c8f9f9f9%3A0x6a6b6b6b6b6b6b6b!2sTsinghua%20Shenzhen%20International%20Graduate%20School!5e0!3m2!1szh-CN!2scn!4v1700000000"
+                    width="100%"
+                    height="100%"
+                    style="border: 0; filter: grayscale(70%) contrast(1.05) saturate(0.8);"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+
+                <!-- Overlay Markers -->
+                <div class="map-overlay">
+                    <div class="location-marker premium" style="top: 25%; left: 20%;" data-mood="hot" data-location="library" data-label="图书馆前庭">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="10" cy="10" r="8"/>
+                            <path d="M10 6V14M6 10H14" stroke-linecap="round"/>
+                        </svg>
+                        <span class="marker-tooltip"><span lang="zh">午后最热的角落</span><span lang="en">Hottest Corner in Afternoon</span></span>
+                    </div>
+                    <div class="location-marker premium" style="top: 55%; left: 15%;" data-mood="wet" data-location="pathway" data-label="雨中路径">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M10 3C10 3 5 8 5 12C5 15.87 7.13 18 10 18C12.87 18 15 15.87 15 12C15 8 10 3 10 3Z" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M10 15C10 15 8 13 8 11.5C8 10.4 8.9 9.5 10 9.5C11.1 9.5 12 10.4 12 11.5C12 13 10 15 10 15Z" stroke-linecap="round"/>
+                        </svg>
+                        <span class="marker-tooltip"><span lang="zh">下雨天没有遮挡的路</span><span lang="en">Unsheltered Path on Rainy Days</span></span>
+                    </div>
+                    <div class="location-marker premium" style="top: 40%; left: 55%;" data-mood="quiet" data-location="courtyard" data-label="静谧庭院">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="10" cy="10" r="8"/>
+                            <path d="M7 10H13M10 7V13" stroke-linecap="round"/>
+                        </svg>
+                        <span class="marker-tooltip"><span lang="zh">没人去的好地方</span><span lang="en">Hidden Gem Quiet Spot</span></span>
+                    </div>
+                    <div class="location-marker premium" style="top: 70%; left: 60%;" data-mood="noisy" data-location="plaza" data-label="中央广场">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M5 10H15M3 10C3 10 5 6 10 6C15 6 17 10 17 10" stroke-linecap="round"/>
+                            <path d="M5 10C5 10 7 14 10 14C13 14 15 10 15 10" stroke-linecap="round"/>
+                            <circle cx="10" cy="10" r="1" fill="currentColor"/>
+                        </svg>
+                        <span class="marker-tooltip"><span lang="zh">太吵了</span><span lang="en">Too Noisy</span></span>
+                    </div>
+                    <div class="location-marker premium" style="top: 30%; left: 80%;" data-mood="bare" data-location="green" data-label="绿地">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M10 3C10 3 4 8 4 12C4 16.42 7.58 20 10 20C12.42 20 16 16.42 16 12C16 8 10 3 10 3Z" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M10 7V17" stroke-linecap="round"/>
+                            <path d="M7 10H13" stroke-linecap="round"/>
+                        </svg>
+                        <span class="marker-tooltip"><span lang="zh">想要绿色</span><span lang="en">Want More Greenery</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="explore-modes">
+                <div class="mode-card active" data-mode="roam">
+                    <svg class="mode-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="10" cy="10" r="7"/>
+                        <path d="M10 6V10L13 13" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 6C14 6 15 7 15 8C15 9 14 10 14 10" stroke-linecap="round"/>
+                    </svg>
+                    <span lang="zh">自动漫游</span><span lang="en">Auto Roam</span>
+                </div>
+                <div class="mode-card" data-mode="free">
+                    <svg class="mode-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M10 3L16 10L10 17L4 10L10 3Z" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="10" cy="10" r="2" fill="currentColor"/>
+                        <path d="M10 3V6M10 14V17M3 10H6M14 10H17" stroke-linecap="round"/>
+                    </svg>
+                    <span lang="zh">自由探索</span><span lang="en">Free Explore</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
     <script>
-        // TODO: 集成 UE Pixel Streaming，处理位置选择交互
-        const locationName = document.getElementById("location-name");
-        const btnContinue = document.getElementById("btn-continue");
+        // Language Switcher
+        const langSwitcher = document.getElementById('langSwitcher');
 
-        // 占位：模拟位置选择
-        document.getElementById("ue-viewport").addEventListener("click", () => {
-            locationName.textContent = "图书馆前庭（示例）";
-            btnContinue.disabled = false;
-            setState("selectedLocation", {
-                x: 100.0, y: 0.0, z: 50.0,
-                label: "图书馆前庭",
-                screenshot: null,
+        function updateLanguageDisplay() {
+            if (APP_STATE.language === 'en') {
+                document.body.classList.add('lang-en');
+            } else {
+                document.body.classList.remove('lang-en');
+            }
+
+            const zhSpan = langSwitcher.querySelector('[lang="zh"]');
+            const enSpan = langSwitcher.querySelector('[lang="en"]');
+
+            if (APP_STATE.language === 'zh') {
+                zhSpan.classList.add('lang-active');
+                enSpan.classList.remove('lang-active');
+            } else {
+                enSpan.classList.add('lang-active');
+                zhSpan.classList.remove('lang-active');
+            }
+        }
+
+        updateLanguageDisplay();
+
+        langSwitcher.addEventListener('click', (e) => {
+            const clickedSpan = e.target.closest('[lang]');
+            if (clickedSpan) {
+                const clickedLang = clickedSpan.getAttribute('lang');
+                if (clickedLang === APP_STATE.language) return;
+            }
+
+            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', APP_STATE.language);
+            updateLanguageDisplay();
+
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
+        });
+
+        // Mode toggle
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
             });
         });
 
-        btnContinue.addEventListener("click", () => {
-            navigateTo(PAGES.CREATE);
+        // Location markers
+        document.querySelectorAll('.location-marker').forEach(marker => {
+            marker.addEventListener('click', () => {
+                const location = marker.dataset.location;
+                const label = marker.dataset.label;
+                const mood = marker.dataset.mood;
+
+                APP_STATE.selectedLocation = { location, label, mood };
+                setState('selectedLocation', APP_STATE.selectedLocation);
+
+                // Highlight selected marker
+                document.querySelectorAll('.location-marker').forEach(m => m.classList.remove('selected'));
+                marker.classList.add('selected');
+
+                Toast.show(
+                    APP_STATE.language === 'zh'
+                        ? `已选择: ${label}`
+                        : `Selected: ${label}`,
+                    'info'
+                );
+            });
         });
     </script>
 </body>
