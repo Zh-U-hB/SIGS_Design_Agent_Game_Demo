@@ -1,44 +1,50 @@
-/* variables.css — CSS 设计令牌（全局变量）
-   职责：定义颜色、间距、字体、圆角、阴影、过渡等全局 CSS 变量 */
+/* variables.css — CSS Custom Properties */
+/* 职责：定义全局颜色、间距、排版、阴影、动画等设计令牌 */
 
 :root {
-    /* 颜色 */
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #1a1a1a;
-    --bg-card: #222222;
-    --text-primary: #ffffff;
-    --text-secondary: #aaaaaa;
-    --accent-blue: #4a9eff;
-    --accent-green: #4aff9e;
-    --accent-gold: #ffd700;
-    --border-color: #333333;
+    /* Tsinghua Purple color palette */
+    --color-bg-primary: #faf9f7;
+    --color-bg-secondary: #f5f3f0;
+    --color-bg-tertiary: #f0ede8;
+    --color-bg-elevated: #ffffff;
 
-    /* 间距 */
-    --space-xs: 4px;
-    --space-sm: 8px;
-    --space-md: 16px;
-    --space-lg: 24px;
-    --space-xl: 32px;
-    --space-2xl: 48px;
+    --color-text-primary: #2c2a29;
+    --color-text-secondary: #6b6560;
+    --color-text-tertiary: #9a928a;
 
-    /* 字体大小 */
-    --font-size-sm: 14px;
-    --font-size-md: 16px;
-    --font-size-lg: 20px;
-    --font-size-xl: 28px;
-    --font-size-2xl: 40px;
+    /* Tsinghua Purple: #660874 */
+    --color-accent-primary: #660874;
+    --color-accent-secondary: #8a3a99;
+    --color-accent-light: #b86acc;
+    --color-accent-warm: #c4a882;
+    --color-accent-cool: #8a9aab;
 
-    /* 圆角 */
+    --color-border-subtle: rgba(102, 8, 116, 0.08);
+    --color-border-soft: rgba(102, 8, 116, 0.12);
+
+    --shadow-xs: 0 1px 3px rgba(102, 8, 116, 0.08);
+    --shadow-sm: 0 2px 8px rgba(102, 8, 116, 0.10);
+    --shadow-md: 0 4px 16px rgba(102, 8, 116, 0.12);
+    --shadow-lg: 0 8px 32px rgba(102, 8, 116, 0.15);
+    --shadow-xl: 0 16px 48px rgba(102, 8, 116, 0.18);
+
     --radius-sm: 6px;
-    --radius-md: 12px;
+    --radius-md: 10px;
     --radius-lg: 16px;
+    --radius-xl: 24px;
     --radius-full: 9999px;
 
-    /* 阴影 */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    --spacing-3xl: 64px;
 
-    /* 过渡 */
-    --transition-fast: 150ms ease;
-    --transition-normal: 300ms ease;
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }

@@ -1,41 +1,105 @@
-// api.js — 后端 API 客户端
+// api.js — 后端 API 客户端（完整实现）
 // 职责：封装 fetch 请求，统一处理认证头、响应格式和错误
 
-async function apiRequest(method, path, body = null) {
-    /** 通用 API 请求方法，自动附加认证头并解析统一响应格式 */
-    const options = {
-        method,
-        headers: {
-            "Content-Type": "application/json",
-            "X-API-Key": API_KEY || "",
-        },
-    };
-
-    if (body) {
-        options.body = JSON.stringify(body);
+const API_CONFIG = {
+    baseURL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:8000'
+        : window.location.origin,
+    version: 'v1',
+    get endpoints() {
+        return {
+            sessions: `${this.baseURL}/api/${this.version}/sessions`,
+            designs: `${this.baseURL}/api/${this.version}/designs`,
+            stats: `${this.baseURL}/api/${this.version}/stats`
+        };
     }
+};
 
-    const response = await fetch(`${API_BASE_URL}${path}`, options);
-    const data = await response.json();
+const API = {
+    async request(endpoint, options = {}) {
+        const url = `${endpoint}`;
 
-    if (data.code !== 0) {
-        throw new Error(data.message || "请求失败");
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        // Add API Key if available (from backend config)
+        // const apiKey = localStorage.getItem('api_key');
+        // if (apiKey) {
+        //     headers['X-API-Key'] = apiKey;
+        // }
+
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+
+            const data = await response.json();
+
+            if (data.code !== 0) {
+                throw new Error(data.message || 'API request failed');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    },
+
+    async createSession() {
+        return this.request(API_CONFIG.endpoints.sessions, {
+            method: 'POST'
+        });
+    },
+
+    async submitDesign(data) {
+        return this.request(API_CONFIG.endpoints.designs + '/input', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    },
+
+    async confirmDesign(designId) {
+        return this.request(`${API_CONFIG.endpoints.designs}/${designId}/confirm`, {
+            method: 'POST'
+        });
+    },
+
+    async getDesignStatus(designId) {
+        return this.request(`${API_CONFIG.endpoints.designs}/${designId}/status`);
+    },
+
+    async getDesigns(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        const url = queryString ? `${API_CONFIG.endpoints.designs}?${queryString}` : API_CONFIG.endpoints.designs;
+        return this.request(url);
+    },
+
+    async getMapData() {
+        return this.request(`${API_CONFIG.endpoints.designs}/map`);
+    },
+
+    async getStats() {
+        return this.request(API_CONFIG.endpoints.stats);
+    },
+
+    async likeDesign(designId) {
+        return this.request(`${API_CONFIG.endpoints.designs}/${designId}/like`, {
+            method: 'POST'
+        });
+    },
+
+    async unlikeDesign(designId) {
+        return this.request(`${API_CONFIG.endpoints.designs}/${designId}/like`, {
+            method: 'DELETE'
+        });
     }
+};
 
-    return data;
-}
-
-function apiGet(path) {
-    /** GET 请求快捷方法 */
-    return apiRequest("GET", path);
-}
-
-function apiPost(path, data) {
-    /** POST 请求快捷方法 */
-    return apiRequest("POST", path, data);
-}
-
-function apiDelete(path) {
-    /** DELETE 请求快捷方法 */
-    return apiRequest("DELETE", path);
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { API, API_CONFIG };
 }

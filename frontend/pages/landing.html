@@ -1,65 +1,228 @@
-<!-- landing.html — 阶段一：进入与吸引
-     职责：项目首页，展示主标题和引导按钮，点击后创建会话并跳转到场景漫游 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>校园共创计划</title>
+    <title>校园漫游者 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <style>
-        .hero {
-            text-align: center;
-            padding: var(--space-2xl) 0;
-        }
-        .hero-title {
-            font-size: var(--font-size-2xl);
-            font-weight: 700;
-            margin-bottom: var(--space-md);
-        }
-        .hero-subtitle {
-            font-size: var(--font-size-lg);
-            color: var(--text-secondary);
-            margin-bottom: var(--space-xl);
-        }
-        .hero-info {
-            font-size: var(--font-size-sm);
-            color: var(--text-secondary);
-            margin-top: var(--space-xl);
-        }
-    </style>
 </head>
 <body>
-    <div class="page-container">
-        <main class="main-content">
-            <div class="hero">
-                <h1 class="hero-title">这座校园，还可以更好</h1>
-                <p class="hero-subtitle">告诉AI你的想象，它来帮你把它造出来</p>
-                <button class="btn btn-primary" id="btn-start">开始探索 →</button>
-                <p class="hero-info">无需注册 · 无需设计经验 · 3分钟完成</p>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="landing.html" class="nav-logo">
+                <span style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                         alt="Tsinghua SIGS"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
+                        <circle cx="24" cy="24" r="20" fill="white"/>
+                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <span>清华SIGS</span>
+                </span>
+            </a>
+            <div class="nav-center">
+                <div class="nav-links">
+                    <a href="landing.html" class="nav-link">
+                        <span lang="zh">首页</span><span lang="en">Home</span>
+                    </a>
+                    <a href="explore.html" class="nav-link">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </a>
+                    <a href="create.html" class="nav-link">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </a>
+                    <a href="gallery.html" class="nav-link">
+                        <span lang="zh">社区</span><span lang="en">Gallery</span>
+                    </a>
+                </div>
             </div>
-        </main>
-    </div>
+            <!-- Language Switcher -->
+            <div class="lang-switcher" id="langSwitcher">
+                <span class="lang-active" lang="zh">中文</span>
+                <span class="lang-separator">/</span>
+                <span lang="en">EN</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Stage 1: Landing -->
+    <section id="stage-landing" class="section visible">
+        <!-- Tsinghua Seal -->
+        <div class="tsinghua-seal">
+            <div class="seal-ring"></div>
+            <div class="seal-text">Tsinghua SIGS</div>
+        </div>
+
+        <div class="campus-illustration">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="30" y="70" width="50" height="100" rx="3" fill="currentColor"/>
+                <rect x="90" y="50" width="60" height="120" rx="3" fill="currentColor"/>
+                <rect x="160" y="80" width="35" height="90" rx="3" fill="currentColor"/>
+                <rect x="50" y="30" width="100" height="35" rx="3" fill="currentColor"/>
+            </svg>
+        </div>
+
+        <!-- Glowing Light Points -->
+        <div class="light-points-container">
+            <div class="light-point" style="width: 8px; height: 8px; top: 20%; left: 25%; animation-delay: 0s;"></div>
+            <div class="light-point" style="width: 6px; height: 6px; top: 35%; left: 45%; animation-delay: 0.5s;"></div>
+            <div class="light-point" style="width: 10px; height: 10px; top: 50%; left: 30%; animation-delay: 1s;"></div>
+            <div class="light-point" style="width: 7px; height: 7px; top: 65%; left: 55%; animation-delay: 1.5s;"></div>
+            <div class="light-point" style="width: 9px; height: 9px; top: 40%; left: 70%; animation-delay: 0.3s;"></div>
+            <div class="light-point" style="width: 6px; height: 6px; top: 75%; left: 40%; animation-delay: 0.8s;"></div>
+            <div class="light-point" style="width: 8px; height: 8px; top: 30%; left: 60%; animation-delay: 1.2s;"></div>
+            <div class="light-point" style="width: 5px; height: 5px; top: 55%; left: 20%; animation-delay: 1.8s;"></div>
+            <div class="light-point" style="width: 7px; height: 7px; top: 45%; left: 80%; animation-delay: 0.6s;"></div>
+            <div class="light-point" style="width: 6px; height: 6px; top: 70%; left: 65%; animation-delay: 1.4s;"></div>
+        </div>
+
+        <div class="ambient-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+
+        <div class="landing-content">
+            <!-- Institution Name - Simplified -->
+            <div class="institution-container">
+                <div class="institution-main">
+                    <span lang="zh">清华大学 · 深圳国际研究生院</span>
+                </div>
+                <div class="institution-sub">
+                    <span lang="zh">Tsinghua Shenzhen International Graduate School</span>
+                </div>
+            </div>
+
+            <div class="landing-badge">
+                <span class="badge-dot"></span>
+                <span lang="zh">未来校园共创计划</span>
+                <span lang="en">Future Campus Co-creation</span>
+            </div>
+            <h1 class="landing-title">
+                <span lang="zh">这座校园，还可以更好</span>
+                <span lang="en">This Campus Can Be Better</span>
+            </h1>
+            <p class="landing-subtitle">
+                <span lang="zh">告诉AI你的想象，它来帮你把它造出来</span>
+                <span lang="en">Tell AI your imagination, it will help build it for you</span>
+            </p>
+            <a href="explore.html" class="cta-button" id="startExploreBtn">
+                <span lang="zh">开始探索</span>
+                <span lang="en">Start Exploring</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            <div class="landing-footer">
+                <div class="footer-item">
+                    <svg class="footer-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="12" height="12" rx="2" stroke-linecap="round"/>
+                        <path d="M6 9H12M6 6H10M6 12H10" stroke-linecap="round" stroke-dasharray="2 2"/>
+                    </svg>
+                    <span lang="zh">无需注册</span><span lang="en">No Sign-up</span>
+                </div>
+                <div class="footer-item">
+                    <svg class="footer-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="9" cy="9" r="6"/>
+                        <path d="M9 6V9L11 11" stroke-linecap="round"/>
+                    </svg>
+                    <span lang="zh">3分钟完成</span><span lang="en">3 Minutes</span>
+                </div>
+                <div class="footer-item">
+                    <svg class="footer-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M9 3L3 7.5V14.5H15V7.5L9 3Z" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 8V14.5M6 14.5H12" stroke-linecap="round"/>
+                    </svg>
+                    <span lang="zh">无需设计经验</span><span lang="en">No Design Skills</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tsinghua SIGS Footer -->
+    <footer class="tsinghua-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                     alt="Tsinghua SIGS"
+                     onerror="this.style.display='none';">
+            </div>
+            <div class="footer-motto">
+                <svg viewBox="0 0 18 18" fill="none">
+                    <path d="M9 2L14 6V14L9 18L4 14V6L9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+                <span>
+                    <span lang="zh">自强不息 · 厚德载物</span>
+                    <span lang="en">Self-discipline · Social Commitment</span>
+                </span>
+            </div>
+        </div>
+    </footer>
+
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
     <script>
-        document.getElementById("btn-start").addEventListener("click", async () => {
-            try {
-                // TODO: 调用 POST /api/v1/sessions 创建会话
-                // const result = await apiPost("/sessions", {});
-                // setState("sessionId", result.data.session_id);
-                navigateTo(PAGES.EXPLORE);
-            } catch (err) {
-                console.error("创建会话失败:", err);
-                navigateTo(PAGES.EXPLORE);
+        // Language Switcher
+        const langSwitcher = document.getElementById('langSwitcher');
+
+        function updateLanguageDisplay() {
+            if (APP_STATE.language === 'en') {
+                document.body.classList.add('lang-en');
+            } else {
+                document.body.classList.remove('lang-en');
             }
+
+            const zhSpan = langSwitcher.querySelector('[lang="zh"]');
+            const enSpan = langSwitcher.querySelector('[lang="en"]');
+
+            if (APP_STATE.language === 'zh') {
+                zhSpan.classList.add('lang-active');
+                enSpan.classList.remove('lang-active');
+            } else {
+                enSpan.classList.add('lang-active');
+                zhSpan.classList.remove('lang-active');
+            }
+        }
+
+        updateLanguageDisplay();
+
+        langSwitcher.addEventListener('click', (e) => {
+            const clickedSpan = e.target.closest('[lang]');
+            if (clickedSpan) {
+                const clickedLang = clickedSpan.getAttribute('lang');
+                if (clickedLang === APP_STATE.language) return;
+            }
+
+            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', APP_STATE.language);
+            updateLanguageDisplay();
+
+            // Add transition effect
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
+        });
+
+        // Start explore button - create session
+        document.getElementById('startExploreBtn').addEventListener('click', async (e) => {
+            // Session will be created when navigating to explore page
+            console.log('Navigating to explore page');
         });
     </script>
 </body>
