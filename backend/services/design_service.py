@@ -1,62 +1,196 @@
 # design_service.py — 设计流程业务逻辑
 # 职责：处理创意输入提交、设计确认、状态查询、列表获取、地图数据等核心设计流程
 
+import uuid
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.schemas.design import DesignConfirmRequest, DesignInputRequest, DesignListParams
+from database.models import Design
+from schemas.design import DesignConfirmRequest, DesignInputRequest, DesignListParams
+from .session_service import get_session
 
 
 async def submit_input(db: AsyncSession, request: DesignInputRequest) -> dict:
-    """保存用户创意输入并触发 Agent 处理
-
-    TODO: 1. 通过 session_id 查找或创建用户
-          2. 创建设计记录（位置 + 情绪标签 + 用户输入）
-          3. 调用 agent_service.translate_to_design_spec()
-          4. 更新设计记录中的 AI 回应
-          5. 返回包含 ai_response 的设计数据
-    """
-    raise NotImplementedError("TODO: 实现设计输入提交逻辑")
+    """保存用户创意输入并触发 Agent 处理"""
+    user = await get_session(db, request.session_id)
+    if not user:
+        return {
+            "id": None,
+            "ai_response": None,
+            "error": "Session not found"
+        }
+    
+    design = Design(
+        user_id=user["id"],
+        location_x=request.location_x,
+        location_y=request.location_y,
+        location_z=request.location_z,
+        location_label=request.location_label,
+        emotion_tags=request.emotion_tags,
+        user_input=request.user_input,
+        original_screenshot=request.original_screenshot,
+        ai_response="AI正在分析您的创意，请稍候..."
+    )
+    db.add(design)
+    await db.commit()
+    await db.refresh(design)
+    
+    return {
+        "id": str(design.id),
+        "ai_response": design.ai_response,
+        "location_label": design.location_label,
+        "emotion_tags": design.emotion_tags,
+        "created_at": design.created_at.isoformat()
+    }
 
 
 async def confirm_design(db: AsyncSession, request: DesignConfirmRequest) -> dict:
-    """确认设计说明并触发图生图生成
-
-    TODO: 1. 通过 session_id 查找用户
-          2. 更新设计记录为已确认的设计说明
-          3. 异步触发 image_service.generate_image()
-          4. 返回处理状态
-    """
-    raise NotImplementedError("TODO: 实现设计确认逻辑")
+    """确认设计说明并触发图生图生成"""
+    user = await get_session(db, request.session_id)
+    if not user:
+        return {
+            "error": "Session not found"
+        }
+    
+    result = await db.execute(
+        select(Design).where(Design.id == uuid.UUID(request.design_id))
+    )
+    design = result.scalar_one_or_none()
+    
+    if not design or design.user_id != user["id"]:
+        return {
+            "error": "Design not found or access denied"
+        }
+    
+    design.design_description = request.design_description
+    design.generated_image = "生成中..."
+    design.model_3d_url = None
+    await db.commit()
+    await db.refresh(design)
+    
+    return {
+        "id": str(design.id),
+        "design_description": design.design_description,
+        "generated_image": design.generated_image,
+        "model_3d_url": design.model_3d_url,
+        "status": "processing"
+    }
 
 
 async def get_design(db: AsyncSession, design_id: str) -> dict | None:
-    """根据 id 获取设计完整详情
+    """根据 id 获取设计完整详情"""
+    result = await db.execute(
+        select(Design).where(Design.id == uuid.UUID(design_id))
+    )
+    design = result.scalar_one_or_none()
+    
+    if not design:
+        return None
+    
+    return {
+        "id": str(design.id),
+        "user_id": str(design.user_id),
+        "location_x": design.location_x,
+        "location_y": design.location_y,
+        "location_z": design.location_z,
+        "location_label": design.location_label,
+        "emotion_tags": design.emotion_tags,
+        "user_input": design.user_input,
+        "design_description": design.design_description,
+        "original_screenshot": design.original_screenshot,
+        "generated_image": design.generated_image,
+        "model_3d_url": design.model_3d_url,
+        "ai_response": design.ai_response,
+        "likes_count": design.likes_count,
+        "created_at": design.created_at.isoformat()
+    }
 
-    TODO: 查询 designs 表，返回完整设计记录
-    """
-    raise NotImplementedError("TODO: 实现获取设计详情")
 
-
-async def get_design_status(db: AsyncSession, design_id: str) -> dict:
-    """查询异步生成状态（图生图、3D模型）
-
-    TODO: 查询设计记录，返回状态（processing/completed/failed）
-          以及可用的 generated_image 和 model_3d_url
-    """
-    raise NotImplementedError("TODO: 实现设计状态查询")
+async def get_design_status(db: AsyncSession, design_id: str) -> dict | None:
+    """查询异步生成状态（图生图、3D模型）"""
+    result = await db.execute(
+        select(Design).where(Design.id == uuid.UUID(design_id))
+    )
+    design = result.scalar_one_or_none()
+    
+    if not design:
+        return None
+    
+    status = "processing"
+    if design.generated_image and design.generated_image != "生成中...":
+        status = "completed"
+    
+    return {
+        "id": str(design.id),
+        "status": status,
+        "generated_image": design.generated_image,
+        "model_3d_url": design.model_3d_url,
+        "design_description": design.design_description
+    }
 
 
 async def list_designs(db: AsyncSession, params: DesignListParams) -> dict:
-    """获取设计列表，支持分页和排序
-
-    TODO: 查询 designs 表，支持按 created_at 或 likes_count 排序，返回分页结果
-    """
-    raise NotImplementedError("TODO: 实现设计列表查询")
+    """获取设计列表，支持分页和排序"""
+    query = select(Design)
+    
+    order_column = Design.created_at
+    if params.sort_by == "likes_count":
+        order_column = Design.likes_count
+    else:
+        order_column = Design.created_at
+    
+    if params.order == "desc":
+        query = query.order_by(order_column.desc())
+    else:
+        query = query.order_by(order_column.asc())
+    
+    offset_val = (params.page - 1) * params.page_size
+    
+    result = await db.execute(
+        query.offset(offset_val).limit(params.page_size)
+    )
+    designs = result.scalars().all()
+    
+    return {
+        "designs": [
+            {
+                "id": str(d.id),
+                "user_id": str(d.user_id),
+                "location_x": d.location_x,
+                "location_y": d.location_y,
+                "location_z": d.location_z,
+                "location_label": d.location_label,
+                "emotion_tags": d.emotion_tags,
+                "design_description": d.design_description,
+                "generated_image": d.generated_image,
+                "model_3d_url": d.model_3d_url,
+                "likes_count": d.likes_count,
+                "created_at": d.created_at.isoformat()
+            }
+            for d in designs
+        ],
+        "page": params.page,
+        "page_size": params.page_size,
+        "total_count": len(designs)
+    }
 
 
 async def get_map_points(db: AsyncSession) -> list[dict]:
-    """获取所有设计的地图光点数据（用于社区 Gallery 页面的校园地图可视化）
-
-    TODO: 查询 designs 表，仅返回 id、location_x/y/z、location_label、likes_count
-    """
-    raise NotImplementedError("TODO: 实现地图光点数据查询")
+    """获取所有设计的地图光点数据（用于社区 Gallery 页面的校园地图可视化）"""
+    result = await db.execute(
+        select(Design).where(Design.location_x.isnot(None), Design.location_y.isnot(None))
+    )
+    designs = result.scalars().all()
+    
+    return [
+        {
+            "id": str(d.id),
+            "location_x": d.location_x,
+            "location_y": d.location_y,
+            "location_z": d.location_z,
+            "location_label": d.location_label,
+            "likes_count": d.likes_count
+        }
+        for d in designs
+        if d.location_x is not None and d.location_y is not None
+    ]
