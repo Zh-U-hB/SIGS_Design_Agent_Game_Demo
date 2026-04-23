@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     IMAGE_API_KEY: str = ""
     IMAGE_API_URL: str = ""
     IMAGE_MODEL: str = "stable-diffusion-xl"
+    MODEL3D_API_KEY: str = ""
+    MODEL3D_API_URL: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
