@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DATABASE_NAME: str = ""
     API_KEY: str = ""
     API_HOST: str = "0.0.0.0"
-    API_PORT: int = 8989
+    API_PORT: int = 8000
     FRONTEND_URL: str = "http://localhost:3000"
     LLM_API_KEY: str = ""
     LLM_API_URL: str = ""
