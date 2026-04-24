@@ -59,6 +59,28 @@
     <!-- Stage 3: Create -->
     <section id="stage-create" class="section visible">
         <div class="create-container">
+            <!-- Selected Location Display -->
+            <div id="selectedLocationDisplay" class="selected-location-display" style="display: none;">
+                <div class="location-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#660874" stroke-width="2">
+                        <circle cx="10" cy="8" r="5"/>
+                        <path d="M10 3v10M6 8h8" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="location-info">
+                    <div class="location-label-text">
+                        <span lang="zh">已选择位置</span><span lang="en">Selected Location</span>
+                    </div>
+                    <div class="location-name" id="locationName"></div>
+                </div>
+                <a href="explore.html" class="change-location-link">
+                    <span lang="zh">更换</span><span lang="en">Change</span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 5L6 10M6 5l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+
             <div class="create-header">
                 <span class="explore-label">Stage 03</span>
                 <h2 class="create-title">
@@ -190,6 +212,12 @@ This place is too monotonous, want more colors"></textarea>
                     <span lang="zh">让AI来理解我的想法 →</span>
                     <span lang="en">Let AI Understand My Ideas →</span>
                 </button>
+
+                <!-- Error Message -->
+                <div class="submit-error-message" id="submitError" style="display: none;">
+                    <span lang="zh">提交失败，请重试</span>
+                    <span lang="en">Submit failed, please retry</span>
+                </div>
             </div>
         </div>
     </section>
@@ -231,6 +259,42 @@ This place is too monotonous, want more colors"></textarea>
         }
 
         updateLanguageDisplay();
+
+        // Load selected location from state
+        const savedLocation = getState('selectedLocation');
+        const locationDisplay = document.getElementById('selectedLocationDisplay');
+        const locationName = document.getElementById('locationName');
+
+        if (savedLocation && savedLocation.label) {
+            APP_STATE.selectedLocation = savedLocation;
+
+            // Show selected location
+            if (locationDisplay && locationName) {
+                locationDisplay.style.display = 'flex';
+                locationName.textContent = savedLocation.label;
+            }
+            console.log('[Create] Loaded location from state:', savedLocation);
+        } else {
+            console.warn('[Create] No location found in state');
+            // Show warning and redirect to explore
+            setTimeout(() => {
+                Toast.show(
+                    APP_STATE.language === 'zh'
+                        ? '请先在探索页面选择一个位置'
+                        : 'Please select a location on the Explore page first',
+                    'warning'
+                );
+
+                // Optionally redirect to explore page
+                setTimeout(() => {
+                    if (confirm(APP_STATE.language === 'zh'
+                        ? '是否前往探索页面选择位置？'
+                        : 'Go to Explore page to select a location?')) {
+                        window.location.href = 'explore.html';
+                    }
+                }, 1500);
+            }, 500);
+        }
 
         langSwitcher.addEventListener('click', (e) => {
             const clickedSpan = e.target.closest('[lang]');
@@ -294,24 +358,39 @@ This place is too monotonous, want more colors"></textarea>
 
         // Submit button
         const submitBtn = document.getElementById('submitBtn');
+        const submitError = document.getElementById('submitError');
+
+        // 隐藏错误消息
+        function hideError() {
+            if (submitError) {
+                submitError.style.display = 'none';
+            }
+        }
+
+        // 显示错误消息
+        function showError() {
+            if (submitError) {
+                submitError.style.display = 'block';
+                // 3秒后自动隐藏
+                setTimeout(hideError, 3000);
+            }
+        }
+
         submitBtn.addEventListener('click', async () => {
             const userInput = document.getElementById('userInput').value.trim();
             const selectedLocation = getState('selectedLocation');
 
+            // 隐藏之前的错误消息
+            hideError();
+
             // Validation
             if (!selectedLocation) {
-                Toast.show(
-                    APP_STATE.language === 'zh' ? '请先选择一个位置' : 'Please select a location first',
-                    'warning'
-                );
+                showError();
                 return;
             }
 
             if (!userInput && APP_STATE.selectedEmotions.length === 0) {
-                Toast.show(
-                    APP_STATE.language === 'zh' ? '请告诉我们你的想法或选择情绪标签' : 'Please share your ideas or select emotion tags',
-                    'warning'
-                );
+                showError();
                 return;
             }
 
@@ -340,14 +419,11 @@ This place is too monotonous, want more colors"></textarea>
                 setState('designId', res.data.id);
                 setState('aiResponse', res.data.ai_response);
 
-                // 跳转到 confirm 页面（不再跳过）
-                window.location.href = 'confirm.html';
+                // 跳转到生成页面
+                window.location.href = 'generate.html';
             } catch (err) {
                 console.error('提交失败:', err);
-                Toast.show(
-                    APP_STATE.language === 'zh' ? '提交失败，请重试' : 'Submit failed, please retry',
-                    'error'
-                );
+                showError();
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = '1';
             }

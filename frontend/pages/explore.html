@@ -213,6 +213,11 @@
                         : `Selected: ${data.label}`,
                     'info'
                 );
+
+                // 立即跳转到创作页面
+                setTimeout(() => {
+                    window.location.href = 'create.html';
+                }, 500);
             });
 
             engine.start();
