@@ -94,7 +94,7 @@
             <div class="gallery-filter-section">
                 <!-- Search -->
                 <div class="input-group">
-                    <input type="text" id="searchInput" class="text-area" style="min-height: 48px; resize: none;" placeholder="搜索设计（关键词、位置、情绪）">
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜索设计（关键词、位置、情绪）">
                 </div>
 
                 <!-- Filter Options -->
@@ -360,7 +360,14 @@
             if (filterState.sort === 'popular') {
                 filtered.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
             } else {
-                filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                filtered.sort((a, b) => {
+                    const parseDate = (val) => {
+                        if (!val) return 0;
+                        const d = new Date(val);
+                        return isNaN(d.getTime()) ? 0 : d.getTime();
+                    };
+                    return parseDate(b.created_at) - parseDate(a.created_at);
+                });
             }
 
             filterState.filteredDesigns = filtered;
@@ -439,41 +446,19 @@
         initFilterPanel();
         renderGalleryData();
 
-        // 点赞功能管理
-        let currentDesignId = null;
-        let isLiked = false;
-        let currentLikesCount = 0;
+        // 点赞功能 — 使用 data 属性管理状态
+        const likeButton = document.getElementById('likeButton');
 
-        async function initLikeButton(designId, likesCount) {
-            currentDesignId = designId;
-            currentLikesCount = likesCount;
+        function initLikeButton(designId, likesCount) {
+            const likeCountEl = document.getElementById('likeCount');
 
-            const likeButton = document.getElementById('likeButton');
-            const likeCount = document.getElementById('likeCount');
+            // Store state on button data attributes
+            likeButton.dataset.designId = designId;
+            likeButton.dataset.liked = 'false';
+            likeButton.dataset.likesCount = String(likesCount);
 
-            // 更新点赞数显示
-            if (likeCount) {
-                likeCount.textContent = likesCount;
-            }
-
-            // 检查用户是否已经点赞
-            try {
-                const sessionId = getState('sessionId');
-                if (sessionId) {
-                    // 这里可以添加检查是否已点赞的逻辑
-                    // 暂时假设未点赞
-                    isLiked = false;
-                    if (likeButton) likeButton.classList.remove('liked');
-                }
-            } catch (err) {
-                console.error('检查点赞状态失败:', err);
-            }
-
-            // 绑定点赞按钮点击事件
-            if (likeButton && !likeButton.hasAttribute('data-listener-added')) {
-                likeButton.addEventListener('click', handleLikeClick);
-                likeButton.setAttribute('data-listener-added', 'true');
-            }
+            if (likeCountEl) likeCountEl.textContent = likesCount;
+            likeButton.classList.remove('liked');
         }
 
         async function handleLikeClick() {
@@ -486,32 +471,31 @@
                 return;
             }
 
-            if (!currentDesignId) return;
+            const designId = likeButton.dataset.designId;
+            if (!designId) return;
 
-            const likeButton = document.getElementById('likeButton');
-            const likeCount = document.getElementById('likeCount');
+            const liked = likeButton.dataset.liked === 'true';
+            const likeCountEl = document.getElementById('likeCount');
 
             try {
                 let response;
-                if (isLiked) {
-                    // 取消点赞
-                    response = await API.unlikeDesign(currentDesignId);
+                if (liked) {
+                    response = await API.unlikeDesign(designId);
                     if (response.code === 0) {
-                        isLiked = false;
-                        currentLikesCount = Math.max(0, currentLikesCount - 1);
-                        if (likeButton) likeButton.classList.remove('liked');
+                        likeButton.dataset.liked = 'false';
+                        likeButton.dataset.likesCount = String(Math.max(0, Number(likeButton.dataset.likesCount) - 1));
+                        likeButton.classList.remove('liked');
                         Toast.show(
                             APP_STATE.language === 'zh' ? '已取消点赞' : 'Unliked',
                             'info'
                         );
                     }
                 } else {
-                    // 点赞
-                    response = await API.likeDesign(currentDesignId);
+                    response = await API.likeDesign(designId);
                     if (response.code === 0) {
-                        isLiked = true;
-                        currentLikesCount++;
-                        if (likeButton) likeButton.classList.add('liked');
+                        likeButton.dataset.liked = 'true';
+                        likeButton.dataset.likesCount = String(Number(likeButton.dataset.likesCount) + 1);
+                        likeButton.classList.add('liked');
                         Toast.show(
                             APP_STATE.language === 'zh' ? '已点赞' : 'Liked!',
                             'success'
@@ -519,13 +503,12 @@
                     }
                 }
 
-                // 更新点赞数显示
-                if (likeCount && response.data && response.data.likes_count !== undefined) {
-                    likeCount.textContent = response.data.likes_count;
-                } else {
-                    likeCount.textContent = currentLikesCount;
+                if (likeCountEl && response.data && response.data.likes_count !== undefined) {
+                    likeCountEl.textContent = response.data.likes_count;
+                    likeButton.dataset.likesCount = String(response.data.likes_count);
+                } else if (likeCountEl) {
+                    likeCountEl.textContent = likeButton.dataset.likesCount;
                 }
-
             } catch (err) {
                 console.error('点赞操作失败:', err);
                 Toast.show(
@@ -534,6 +517,9 @@
                 );
             }
         }
+
+        // Bind click handler once
+        likeButton.addEventListener('click', handleLikeClick);
 
         // 点击光点时从 API 获取设计详情
         async function openDesignModal(designId) {

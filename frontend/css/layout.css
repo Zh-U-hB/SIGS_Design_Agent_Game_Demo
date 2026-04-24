@@ -976,56 +976,7 @@
     padding-right: 40px;
 }
 
-/* Like Button */
-.like-button-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.like-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: var(--color-bg-secondary);
-    border: 2px solid rgba(102, 8, 116, 0.1);
-    border-radius: 100px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-}
-
-.like-button:hover {
-    background: rgba(102, 8, 116, 0.05);
-    border-color: rgba(102, 8, 116, 0.3);
-    color: var(--color-accent-primary);
-    transform: scale(1.05);
-}
-
-.like-button.liked {
-    background: rgba(102, 8, 116, 0.1);
-    border-color: var(--color-accent-primary);
-    color: var(--color-accent-primary);
-}
-
-.like-button.liked .like-icon {
-    fill: var(--color-accent-primary);
-    stroke: var(--color-accent-primary);
-}
-
-.like-icon {
-    transition: all 0.3s ease;
-}
-
-.like-count {
-    font-size: 16px;
-    font-weight: 700;
-    min-width: 20px;
-    text-align: center;
-}
+/* Like Button styles defined in components.css */
 
 .modal-title {
     font-size: 20px;
