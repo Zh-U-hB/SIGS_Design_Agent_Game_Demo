@@ -211,7 +211,25 @@
     color: var(--color-accent-primary);
 }
 
-/* 复用layout.css中的input-group, text-area, option-row, chip-group, chip样式 */
+/* 搜索输入框 */
+.search-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-elevated);
+    border: 2px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    transition: border-color var(--transition-fast);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--color-accent-primary);
+}
+
+/* 复用layout.css中的input-group, option-row, chip-group, chip样式 */
 
 /* ==================== 点赞按钮优化 ==================== */
 .like-button-wrapper {

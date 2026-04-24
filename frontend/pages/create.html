@@ -280,19 +280,15 @@ This place is too monotonous, want more colors"></textarea>
             setTimeout(() => {
                 Toast.show(
                     APP_STATE.language === 'zh'
-                        ? '请先在探索页面选择一个位置'
-                        : 'Please select a location on the Explore page first',
+                        ? '请先在探索页面选择一个位置，即将跳转...'
+                        : 'Please select a location on the Explore page, redirecting...',
                     'warning'
                 );
 
-                // Optionally redirect to explore page
+                // Auto-redirect to explore page
                 setTimeout(() => {
-                    if (confirm(APP_STATE.language === 'zh'
-                        ? '是否前往探索页面选择位置？'
-                        : 'Go to Explore page to select a location?')) {
-                        window.location.href = 'explore.html';
-                    }
-                }, 1500);
+                    window.location.href = 'explore.html';
+                }, 2000);
             }, 500);
         }
 
