@@ -75,6 +75,9 @@ export class MarkerSystem {
     }
 
     destroy() {
+        if (this._designInteractionCleanup) {
+            this._designInteractionCleanup();
+        }
         this.clearAll();
     }
 
@@ -131,5 +134,55 @@ export class MarkerSystem {
     }
 
     _setupDesignInteraction(scene, events) {
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let hoveredMarker = null;
+
+        const onPointerMove = (event) => {
+            const rect = scene.renderer?.domElement?.getBoundingClientRect() || event.target.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, scene.camera);
+
+            const intersects = raycaster.intersectObjects(this._designMarkers);
+
+            if (intersects.length > 0) {
+                const marker = intersects[0].object;
+                if (hoveredMarker !== marker) {
+                    if (hoveredMarker) {
+                        hoveredMarker.scale.set(1, 1, 1);
+                        hoveredMarker.material.emissiveIntensity = 0.3;
+                    }
+                    hoveredMarker = marker;
+                    hoveredMarker.scale.set(1.3, 1.3, 1.3);
+                    hoveredMarker.material.emissiveIntensity = 0.6;
+                    event.target.style.cursor = 'pointer';
+                    events.emit('marker-hovered', { id: marker.userData.designId });
+                }
+            } else {
+                if (hoveredMarker) {
+                    hoveredMarker.scale.set(1, 1, 1);
+                    hoveredMarker.material.emissiveIntensity = 0.3;
+                    hoveredMarker = null;
+                    event.target.style.cursor = 'grab';
+                }
+            }
+        };
+
+        const onPointerClick = (event) => {
+            if (hoveredMarker) {
+                events.emit('marker-clicked', { id: hoveredMarker.userData.designId });
+            }
+        };
+
+        const container = scene.renderer?.domElement?.parentElement || window;
+        container.addEventListener('pointermove', onPointerMove);
+        container.addEventListener('click', onPointerClick);
+
+        this._designInteractionCleanup = () => {
+            container.removeEventListener('pointermove', onPointerMove);
+            container.removeEventListener('click', onPointerClick);
+        };
     }
 }

@@ -90,6 +90,75 @@
         </div>
 
         <div class="gallery-map-wrapper">
+            <!-- Filter Section -->
+            <div class="gallery-filter-section">
+                <!-- Search -->
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="text-area" style="min-height: 48px; resize: none;" placeholder="搜索设计（关键词、位置、情绪）">
+                </div>
+
+                <!-- Filter Options -->
+                <div class="option-row">
+                    <div class="option-row-title">
+                        <span lang="zh">位置</span><span lang="en">Location</span>
+                    </div>
+                    <div class="chip-group" id="locationChips">
+                        <span class="chip selected" data-value="all"><span lang="zh">全部</span><span lang="en">All</span></span>
+                        <span class="chip" data-value="图书馆"><span lang="zh">图书馆</span><span lang="en">Library</span></span>
+                        <span class="chip" data-value="信息楼"><span lang="zh">信息楼</span><span lang="en">Information Building</span></span>
+                        <span class="chip" data-value="能源楼"><span lang="zh">能源楼</span><span lang="en">Energy Building</span></span>
+                        <span class="chip" data-value="国际中心"><span lang="zh">国际中心</span><span lang="en">International Center</span></span>
+                        <span class="chip" data-value="宿舍楼"><span lang="zh">宿舍楼</span><span lang="en">Dormitory</span></span>
+                        <span class="chip" data-value="体育馆"><span lang="zh">体育馆</span><span lang="en">Gymnasium</span></span>
+                        <span class="chip" data-value="食堂"><span lang="zh">食堂</span><span lang="en">Cafeteria</span></span>
+                        <span class="chip" data-value="行政楼"><span lang="zh">行政楼</span><span lang="en">Administration</span></span>
+                    </div>
+                </div>
+
+                <div class="option-row">
+                    <div class="option-row-title">
+                        <span lang="zh">使用时间</span><span lang="en">Time of Day</span>
+                    </div>
+                    <div class="chip-group" id="timeChips">
+                        <span class="chip selected" data-value="all"><span lang="zh">全部</span><span lang="en">All</span></span>
+                        <span class="chip" data-value="morning"><span lang="zh">早晨</span><span lang="en">Morning</span></span>
+                        <span class="chip" data-value="afternoon"><span lang="zh">午后</span><span lang="en">Afternoon</span></span>
+                        <span class="chip" data-value="evening"><span lang="zh">傍晚</span><span lang="en">Evening</span></span>
+                        <span class="chip" data-value="night"><span lang="zh">夜晚</span><span lang="en">Night</span></span>
+                    </div>
+                </div>
+
+                <div class="option-row">
+                    <div class="option-row-title">
+                        <span lang="zh">使用方式</span><span lang="en">Activity</span>
+                    </div>
+                    <div class="chip-group" id="activityChips">
+                        <span class="chip selected" data-value="all"><span lang="zh">全部</span><span lang="en">All</span></span>
+                        <span class="chip" data-value="alone"><span lang="zh">独处</span><span lang="en">Alone</span></span>
+                        <span class="chip" data-value="friends"><span lang="zh">和朋友</span><span lang="en">Friends</span></span>
+                        <span class="chip" data-value="work"><span lang="zh">工作</span><span lang="en">Work</span></span>
+                        <span class="chip" data-value="rest"><span lang="zh">休息</span><span lang="en">Rest</span></span>
+                        <span class="chip" data-value="pass-by"><span lang="zh">路过</span><span lang="en">Pass By</span></span>
+                    </div>
+                </div>
+
+                <div class="option-row">
+                    <div class="option-row-title">
+                        <span lang="zh">排序</span><span lang="en">Sort</span>
+                    </div>
+                    <div class="chip-group" id="sortChips">
+                        <span class="chip selected" data-value="newest"><span lang="zh">最新</span><span lang="en">Newest</span></span>
+                        <span class="chip" data-value="popular"><span lang="zh">热门</span><span lang="en">Popular</span></span>
+                    </div>
+                </div>
+
+                <!-- Results Count -->
+                <div class="filter-results-count">
+                    <span class="filter-number" id="resultsCount">0</span>
+                    <span lang="zh">个设计</span><span lang="en"> designs</span>
+                </div>
+            </div>
+
             <div class="gallery-map">
                 <div class="campus-engine-container" id="galleryCampusContainer"></div>
             </div>
@@ -100,9 +169,20 @@
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <button class="modal-close" id="modalClose">×</button>
-            <h3 class="modal-title">
-                <span lang="zh">设计创意</span><span lang="en">Design Idea</span>
-            </h3>
+            <div class="modal-header-section">
+                <h3 class="modal-title">
+                    <span lang="zh">设计创意</span><span lang="en">Design Idea</span>
+                </h3>
+                <!-- Like Button -->
+                <div class="like-button-wrapper">
+                    <button class="like-button" id="likeButton">
+                        <svg class="like-icon" id="likeIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="like-count" id="likeCount">0</span>
+                    </button>
+                </div>
+            </div>
             <div class="modal-content-box">
                 <div class="modal-label">
                     <span lang="zh">原始想法</span><span lang="en">Original Idea</span>
@@ -189,6 +269,17 @@
 
         galleryEngine.start();
 
+        // 筛选状态管理
+        const filterState = {
+            search: '',
+            location: 'all',
+            time: 'all',
+            activity: 'all',
+            sort: 'newest',
+            allDesigns: [],
+            filteredDesigns: []
+        };
+
         // 加载社区数据
         async function renderGalleryData() {
             try {
@@ -206,21 +297,243 @@
                 }
 
                 if (mapRes.status === 'fulfilled' && mapRes.value.data && mapRes.value.data.length > 0) {
-                    const designs = mapRes.value.data.map(d => ({
-                        id: d.id,
-                        location_x: d.location_x,
-                        location_y: d.location_y,
-                        likesCount: d.likes_count,
-                        label: d.location_label,
-                    }));
-                    galleryEngine.addDesignMarkers(designs);
+                    filterState.allDesigns = mapRes.value.data;
+                    applyFilters();
                 }
             } catch (err) {
                 console.error('获取社区数据失败:', err);
             }
         }
 
+        // 处理chip点击
+        function handleChipClick(type, value) {
+            filterState[type] = value;
+
+            // 更新chip激活状态
+            const containerId = type === 'location' ? 'locationChips' :
+                               type === 'time' ? 'timeChips' :
+                               type === 'activity' ? 'activityChips' : 'sortChips';
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.querySelectorAll('.chip').forEach(chip => {
+                    if (chip.dataset.value === value) {
+                        chip.classList.add('selected');
+                    } else {
+                        chip.classList.remove('selected');
+                    }
+                });
+            }
+
+            applyFilters();
+        }
+
+        // 应用筛选
+        function applyFilters() {
+            let filtered = [...filterState.allDesigns];
+
+            // 搜索筛选
+            if (filterState.search) {
+                const searchLower = filterState.search.toLowerCase();
+                filtered = filtered.filter(d =>
+                    (d.user_input && d.user_input.toLowerCase().includes(searchLower)) ||
+                    (d.design_description && d.design_description.toLowerCase().includes(searchLower)) ||
+                    (d.location_label && d.location_label.toLowerCase().includes(searchLower))
+                );
+            }
+
+            // 位置筛选
+            if (filterState.location !== 'all') {
+                filtered = filtered.filter(d => d.location_label === filterState.location);
+            }
+
+            // 使用时间筛选
+            if (filterState.time !== 'all') {
+                filtered = filtered.filter(d => d.time_preference === filterState.time);
+            }
+
+            // 使用方式筛选
+            if (filterState.activity !== 'all') {
+                filtered = filtered.filter(d => d.activity_preference === filterState.activity);
+            }
+
+            // 排序
+            if (filterState.sort === 'popular') {
+                filtered.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+            } else {
+                filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+            }
+
+            filterState.filteredDesigns = filtered;
+            updateResultsCount();
+            updateMapMarkers();
+        }
+
+        // 更新结果数量
+        function updateResultsCount() {
+            const countEl = document.getElementById('resultsCount');
+            if (countEl) {
+                countEl.textContent = filterState.filteredDesigns.length;
+            }
+        }
+
+        // 更新地图标记点
+        function updateMapMarkers() {
+            if (!galleryEngine) return;
+
+            galleryEngine.clearMarkers();
+
+            if (filterState.filteredDesigns.length > 0) {
+                const designs = filterState.filteredDesigns.map(d => ({
+                    id: d.id,
+                    location_x: d.location_x,
+                    location_y: d.location_y,
+                    location_z: 0,
+                    likesCount: d.likes_count,
+                    label: d.location_label,
+                }));
+                galleryEngine.addDesignMarkers(designs);
+            }
+        }
+
+        // 初始化筛选面板
+        function initFilterPanel() {
+            // 搜索输入
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    filterState.search = e.target.value;
+                    applyFilters();
+                });
+            }
+
+            // 位置筛选
+            document.querySelectorAll('#locationChips .chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    handleChipClick('location', chip.dataset.value);
+                });
+            });
+
+            // 使用时间筛选
+            document.querySelectorAll('#timeChips .chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    handleChipClick('time', chip.dataset.value);
+                });
+            });
+
+            // 使用方式筛选
+            document.querySelectorAll('#activityChips .chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    handleChipClick('activity', chip.dataset.value);
+                });
+            });
+
+            // 排序筛选
+            document.querySelectorAll('#sortChips .chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    handleChipClick('sort', chip.dataset.value);
+                });
+            });
+        }
+
+        // 初始化
+        initFilterPanel();
         renderGalleryData();
+
+        // 点赞功能管理
+        let currentDesignId = null;
+        let isLiked = false;
+        let currentLikesCount = 0;
+
+        async function initLikeButton(designId, likesCount) {
+            currentDesignId = designId;
+            currentLikesCount = likesCount;
+
+            const likeButton = document.getElementById('likeButton');
+            const likeCount = document.getElementById('likeCount');
+
+            // 更新点赞数显示
+            if (likeCount) {
+                likeCount.textContent = likesCount;
+            }
+
+            // 检查用户是否已经点赞
+            try {
+                const sessionId = getState('sessionId');
+                if (sessionId) {
+                    // 这里可以添加检查是否已点赞的逻辑
+                    // 暂时假设未点赞
+                    isLiked = false;
+                    if (likeButton) likeButton.classList.remove('liked');
+                }
+            } catch (err) {
+                console.error('检查点赞状态失败:', err);
+            }
+
+            // 绑定点赞按钮点击事件
+            if (likeButton && !likeButton.hasAttribute('data-listener-added')) {
+                likeButton.addEventListener('click', handleLikeClick);
+                likeButton.setAttribute('data-listener-added', 'true');
+            }
+        }
+
+        async function handleLikeClick() {
+            const sessionId = getState('sessionId');
+            if (!sessionId) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请先开始探索' : 'Please start exploring first',
+                    'warning'
+                );
+                return;
+            }
+
+            if (!currentDesignId) return;
+
+            const likeButton = document.getElementById('likeButton');
+            const likeCount = document.getElementById('likeCount');
+
+            try {
+                let response;
+                if (isLiked) {
+                    // 取消点赞
+                    response = await API.unlikeDesign(currentDesignId);
+                    if (response.code === 0) {
+                        isLiked = false;
+                        currentLikesCount = Math.max(0, currentLikesCount - 1);
+                        if (likeButton) likeButton.classList.remove('liked');
+                        Toast.show(
+                            APP_STATE.language === 'zh' ? '已取消点赞' : 'Unliked',
+                            'info'
+                        );
+                    }
+                } else {
+                    // 点赞
+                    response = await API.likeDesign(currentDesignId);
+                    if (response.code === 0) {
+                        isLiked = true;
+                        currentLikesCount++;
+                        if (likeButton) likeButton.classList.add('liked');
+                        Toast.show(
+                            APP_STATE.language === 'zh' ? '已点赞' : 'Liked!',
+                            'success'
+                        );
+                    }
+                }
+
+                // 更新点赞数显示
+                if (likeCount && response.data && response.data.likes_count !== undefined) {
+                    likeCount.textContent = response.data.likes_count;
+                } else {
+                    likeCount.textContent = currentLikesCount;
+                }
+
+            } catch (err) {
+                console.error('点赞操作失败:', err);
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '操作失败，请重试' : 'Operation failed, please try again',
+                    'error'
+                );
+            }
+        }
 
         // 点击光点时从 API 获取设计详情
         async function openDesignModal(designId) {
@@ -247,6 +560,9 @@
                         modalImage.src = d.generated_image;
                         modalImage.style.display = 'block';
                     }
+
+                    // 初始化点赞功能
+                    initLikeButton(designId, d.likes_count || 0);
                 }
             } catch (err) {
                 console.error('获取设计详情失败:', err);
