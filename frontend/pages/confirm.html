@@ -1,116 +1,240 @@
-<!-- confirm.html — 阶段四：确认设计说明
-     职责：展示 AI 理解的设计方向，用户可确认、修改后触发图生图生成 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>确认设计说明</title>
+    <title>确认设计 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <style>
-        .confirm-section {
-            margin-bottom: var(--space-xl);
-        }
-        .confirm-label {
-            font-size: var(--font-size-sm);
-            color: var(--text-secondary);
-            margin-bottom: var(--space-sm);
-        }
-        .user-original {
-            background: var(--bg-secondary);
-            padding: var(--space-md);
-            border-radius: var(--radius-sm);
-            border-left: 3px solid var(--accent-blue);
-            margin-bottom: var(--space-lg);
-        }
-        .ai-understanding {
-            margin-bottom: var(--space-lg);
-        }
-        .ai-understanding li {
-            margin-bottom: var(--space-xs);
-            color: var(--text-secondary);
-        }
-        .design-description {
-            margin-bottom: var(--space-xl);
-        }
-        .design-description textarea {
-            min-height: 100px;
-        }
-        .actions {
-            display: flex;
-            gap: var(--space-md);
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-    </style>
 </head>
 <body>
-    <div class="page-container">
-        <main class="main-content" style="justify-content: flex-start; padding-top: var(--space-xl);">
-            <h2 style="text-align: center; margin-bottom: var(--space-xl);">
-                这是AI对你想法的理解——看看对不对？
-            </h2>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
-            <div class="confirm-section">
-                <p class="confirm-label">你说的：</p>
-                <div class="user-original" id="user-original">
-                    加载中...
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="landing.html" class="nav-logo">
+                <span style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                         alt="Tsinghua SIGS"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
+                        <circle cx="24" cy="24" r="20" fill="white"/>
+                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <span>清华SIGS</span>
+                </span>
+            </a>
+            <div class="nav-center">
+                <div class="nav-links">
+                    <a href="landing.html" class="nav-link">
+                        <span lang="zh">首页</span><span lang="en">Home</span>
+                    </a>
+                    <a href="explore.html" class="nav-link">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </a>
+                    <a href="create.html" class="nav-link">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </a>
+                    <a href="gallery.html" class="nav-link">
+                        <span lang="zh">社区</span><span lang="en">Gallery</span>
+                    </a>
                 </div>
             </div>
+            <div class="lang-switcher" id="langSwitcher">
+                <span class="lang-active" lang="zh">中文</span>
+                <span class="lang-separator">/</span>
+                <span lang="en">EN</span>
+            </div>
+        </div>
+    </nav>
 
-            <div class="confirm-section ai-understanding">
-                <p class="confirm-label">AI 理解了你的想法：</p>
-                <ul id="ai-points">
-                    <li>加载中...</li>
-                </ul>
+    <!-- Stage 4: Confirm -->
+    <section class="section visible" style="background: var(--color-bg-secondary); flex-direction: column;">
+        <div style="width: 100%; max-width: 640px; text-align: center;">
+            <span class="explore-label">Stage 04</span>
+            <h2 class="create-title">
+                <span lang="zh">确认你的想法</span>
+                <span lang="en">Confirm Your Ideas</span>
+            </h2>
+            <p class="create-subtitle">
+                <span lang="zh">AI将根据你的输入生成设计方案</span>
+                <span lang="en">AI will generate a design solution based on your input</span>
+            </p>
+        </div>
+
+        <div class="input-panel" style="width: 100%; max-width: 640px;">
+            <div class="input-group">
+                <label class="input-label">
+                    <span lang="zh">选择的位置</span><span lang="en">Selected Location</span>
+                </label>
+                <p id="locationDisplay" style="color: var(--color-text-secondary); font-size: 15px;">
+                    <span lang="zh">未选择</span><span lang="en">Not selected</span>
+                </p>
             </div>
 
-            <div class="confirm-section design-description">
-                <p class="confirm-label">准备生成的设计方向（可编辑）：</p>
-                <textarea class="form-textarea" id="design-description"
-                    placeholder="AI 生成的设计说明将显示在这里..."></textarea>
+            <div class="input-group">
+                <label class="input-label">
+                    <span lang="zh">你的想法</span><span lang="en">Your Ideas</span>
+                </label>
+                <p id="inputDisplay" style="color: var(--color-text-secondary); font-size: 15px; line-height: 1.6;">
+                    <span lang="zh">无输入</span><span lang="en">No input</span>
+                </p>
             </div>
 
-            <div class="actions">
-                <button class="btn btn-primary" id="btn-confirm">就是这个感觉，生成设计 →</button>
-                <button class="btn btn-secondary" id="btn-back">不太对，我想调整一下</button>
+            <div class="input-group" id="emotionsDisplayGroup" style="display: none;">
+                <label class="input-label">
+                    <span lang="zh">情绪标签</span><span lang="en">Emotion Tags</span>
+                </label>
+                <div id="emotionsDisplay" class="chip-group"></div>
             </div>
-        </main>
-    </div>
+
+            <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-xl);">
+                <button class="action-btn" id="backBtn" style="flex: 1;">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M10 3L5 8L10 13" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span lang="zh">返回修改</span><span lang="en">Go Back</span>
+                </button>
+                <button class="action-btn primary" id="confirmBtn" style="flex: 1;">
+                    <span lang="zh">确认生成 →</span><span lang="en">Confirm →</span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M6 3L11 8L6 13" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
     <script>
-        // 显示用户的原始输入
-        const userInput = getState("userInput") || "";
-        document.getElementById("user-original").textContent = userInput || "（暂无输入）";
+        // Language Switcher
+        const langSwitcher = document.getElementById('langSwitcher');
 
-        // TODO: 从后端获取 AI 理解结果
-        // const result = await apiGet(`/designs/${getState("designId")}`);
-        // 填充 ai-points 和 design-description
-
-        document.getElementById("btn-confirm").addEventListener("click", async () => {
-            try {
-                // TODO: 调用 POST /api/v1/designs/confirm
-                // await apiPost("/designs/confirm", {
-                //     session_id: getState("sessionId"),
-                //     design_id: getState("designId"),
-                //     design_description: document.getElementById("design-description").value,
-                // });
-                navigateTo(PAGES.GENERATE);
-            } catch (err) {
-                console.error("确认失败:", err);
+        function updateLanguageDisplay() {
+            if (APP_STATE.language === 'en') {
+                document.body.classList.add('lang-en');
+            } else {
+                document.body.classList.remove('lang-en');
             }
+
+            const zhSpan = langSwitcher.querySelector('[lang="zh"]');
+            const enSpan = langSwitcher.querySelector('[lang="en"]');
+
+            if (APP_STATE.language === 'zh') {
+                zhSpan.classList.add('lang-active');
+                enSpan.classList.remove('lang-active');
+            } else {
+                enSpan.classList.add('lang-active');
+                zhSpan.classList.remove('lang-active');
+            }
+        }
+
+        updateLanguageDisplay();
+
+        langSwitcher.addEventListener('click', (e) => {
+            const clickedSpan = e.target.closest('[lang]');
+            if (clickedSpan) {
+                const clickedLang = clickedSpan.getAttribute('lang');
+                if (clickedLang === APP_STATE.language) return;
+            }
+
+            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', APP_STATE.language);
+            updateLanguageDisplay();
+
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
         });
 
-        document.getElementById("btn-back").addEventListener("click", () => {
-            navigateTo(PAGES.CREATE);
+        // Display stored data
+        const selectedLocation = getState('selectedLocation');
+        const userInput = getState('userInput');
+        const selectedEmotions = getState('selectedEmotions') || [];
+        const aiResponse = getState('aiResponse');
+
+        if (selectedLocation) {
+            document.getElementById('locationDisplay').textContent = selectedLocation.label || '';
+        }
+
+        // 优先显示 AI 响应，其次显示用户原始输入
+        const displayText = aiResponse || userInput || '';
+        if (displayText) {
+            document.getElementById('inputDisplay').textContent = displayText;
+        }
+
+        if (selectedEmotions.length > 0) {
+            document.getElementById('emotionsDisplayGroup').style.display = 'block';
+            const emotionsContainer = document.getElementById('emotionsDisplay');
+
+            const emotionLabels = {
+                crowded: { zh: '太拥挤', en: 'Too Crowded' },
+                boring: { zh: '太单调', en: 'Too Boring' },
+                green: { zh: '想要绿色', en: 'Want Greenery' },
+                dark: { zh: '采光不好', en: 'Poor Lighting' },
+                noisy: { zh: '太吵了', en: 'Too Noisy' },
+                limited: { zh: '不够用', en: 'Insufficient Space' }
+            };
+
+            selectedEmotions.forEach(emotion => {
+                const chip = document.createElement('span');
+                chip.className = 'chip selected';
+                chip.textContent = emotionLabels[emotion] ? emotionLabels[emotion][APP_STATE.language] : emotion;
+                emotionsContainer.appendChild(chip);
+            });
+        }
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'create.html';
+        });
+
+        // Confirm button — 调用确认 API
+        const confirmBtn = document.getElementById('confirmBtn');
+        confirmBtn.addEventListener('click', async () => {
+            const designId = getState('designId');
+            const sessionId = getState('sessionId');
+
+            if (!designId || !sessionId) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '缺少设计数据，请返回重新操作' : 'Missing design data, please go back and retry',
+                    'error'
+                );
+                return;
+            }
+
+            confirmBtn.disabled = true;
+            confirmBtn.style.opacity = '0.6';
+            try {
+                await API.confirmDesign(designId, {
+                    session_id: sessionId,
+                    design_id: designId,
+                    design_description: displayText
+                });
+
+                window.location.href = 'generate.html';
+            } catch (err) {
+                console.error('确认失败:', err);
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '确认失败，请重试' : 'Confirm failed, please retry',
+                    'error'
+                );
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+            }
         });
     </script>
 </body>

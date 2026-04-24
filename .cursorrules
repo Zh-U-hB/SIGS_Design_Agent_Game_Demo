@@ -1,0 +1,174 @@
+# .cursorrules
+
+# SIGS Design Agent Game Demo — Cursor AI Rules
+
+> Version: 2.0.0 | Updated: 2026-04-23
+>
+# These rules guide Cursor AI when working with this codebase.
+
+# --------------------------------------------------
+# PROJECT OVERVIEW
+# --------------------------------------------------
+
+Project: SIGS Design Agent Game Demo — AR-enabled campus exploration platform
+Tech Stack: Python/FastAPI backend, native HTML/CSS/JS frontend, PostgreSQL cloud DB
+Package Manager: uv (Python), npm (frontend)
+Linting: Ruff (backend)
+
+# --------------------------------------------------
+# CODE STYLING RULES
+# --------------------------------------------------
+
+# Python
+- Use snake_case for files, variables, functions
+- Use PascalCase for classes
+- Use UPPER_SNAKE_CASE for constants
+- Maximum function length: 200 lines
+- Maximum file length: 800 lines
+- Use docstrings for function/class documentation
+- No bare except clauses — always specify exception type
+
+# JavaScript
+- Use camelCase for variables and functions
+- Use UPPER_SNAKE_CASE for constants
+- Use kebab-case for file names and CSS classes
+- Use JSDoc style comments for functions
+
+# SQL
+- Use parameterized queries ONLY
+- Never concatenate strings for SQL queries
+
+# --------------------------------------------------
+# NAMING CONVENTIONS
+# --------------------------------------------------
+
+# API endpoints: /api/v1/ + plural lowercase nouns
+# Examples: /api/v1/users, /api/v1/designs, /api/v1/sessions
+
+# File naming:
+# Python: user_service.py, database/connection.py
+# HTML/CSS/JS: game-board.html, api-client.js
+# Tests: test_<module_name>.py (mirrors source path)
+
+# --------------------------------------------------
+# TESTING RULES
+# --------------------------------------------------
+
+# One test file per source file
+# Test paths mirror source paths:
+# backend/database/serve.py → test/backend/database/test_serve.py
+# backend/api/design.py → test/backend/api/test_design.py
+
+# Use pytest for testing
+# Use pytest-asyncio for async tests
+# Use httpx for HTTP client testing
+
+# --------------------------------------------------
+# API CONVENTIONS
+# --------------------------------------------------
+
+# RESTful API with JSON responses
+# Prefix all API routes with /api/v1/
+
+# Unified response format:
+# Success: {"code": 0, "message": "success", "data": {...}}
+# Error: {"code": 40001, "message": "error description", "data": null}
+
+# Error codes:
+# 0 = success
+# 40001 = bad parameters
+# 40101 = auth failed (API Key missing or invalid)
+# 40401 = resource not found
+# 50001 = server error
+
+# Authentication: X-API-Key header
+
+# --------------------------------------------------
+# GIT COMMIT RULES
+# --------------------------------------------------
+
+# Commit format: <type>: <description>
+# Types: feat, fix, refactor, test, docs, style, chore
+# Examples: "feat: add user registration endpoint"
+
+# Branches:
+# main = development branch
+# serve = stable/production branch
+# feature/xxx = optional feature branches
+
+# --------------------------------------------------
+# SECURITY RULES
+# --------------------------------------------------
+
+# ALL external input must be validated
+# NEVER hardcode secrets (API keys, passwords)
+# Use environment variables for sensitive data
+# Never log sensitive information
+# Never expose internal details in error responses
+
+# Required environment variables:
+# DATABASE_URL, DATABASE_NAME, API_KEY, API_HOST, API_PORT, FRONTEND_URL
+
+# --------------------------------------------------
+# DOCUMENTATION RULES
+# --------------------------------------------------
+
+# When asked to write a document:
+# 1. Read doc/00_文档存放规则.md first
+# 2. Determine document type to choose correct directory
+# 3. Use naming format: [description]_[YYYY-MM-DD].md (for reports and plans)
+# 4. Include standard header metadata
+# 5. Update doc/INDEX.md with new document link
+
+# Document directories:
+# doc/01_architecture/ = technical architecture, system design
+# doc/02_product/ = interaction design, feature requirements
+# doc/03_reports/ = code reports, audits, reviews
+# doc/04_plans/ = work plans, roadmaps, todos
+# doc/05_meetings/ = meeting notes, decisions
+# doc/06_references/ = reference materials
+# doc/archive/ = archived documents
+
+# --------------------------------------------------
+# COMMON COMMANDS
+# --------------------------------------------------
+
+# Backend setup:
+# cd backend && uv sync
+
+# Run dev server:
+# cd backend && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Code linting:
+# ruff check .
+# ruff check --fix .
+# ruff format .
+
+# Run tests:
+# pytest
+
+# --------------------------------------------------
+# CODE QUALITY CHECKLIST
+# --------------------------------------------------
+
+# Before considering a task complete:
+# - [ ] Code follows naming conventions
+# - [ ] Functions ≤ 200 lines, files ≤ 800 lines
+# - [ ] No bare except clauses
+# - [ ] SQL uses parameterized queries
+# - [ ] Secrets via environment variables only
+# - [ ] Test file created (mirrors source path)
+# - [ ] Passes ruff check .
+# - [ ] If document created, follows doc/00_文档存放规则.md
+
+# --------------------------------------------------
+# AUTHORITATIVE RULES
+# --------------------------------------------------
+
+# When rules conflict, follow this priority:
+# 1. 开发规则.md (highest priority)
+# 2. AGENT.md
+# 3. This file (.cursorrules)
+# 4. Other documentation
+
+# Always read 开发规则.md for the most authoritative rules.

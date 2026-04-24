@@ -1,114 +1,297 @@
-<!-- generate.html — 阶段五：生成与呈现
-     职责：展示加载动画和分步文案，轮询生成状态，完成后展示原图 vs 新设计对比 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生成结果</title>
+    <title>生成设计 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <style>
-        .result-area {
-            margin-bottom: var(--space-xl);
-        }
-        .comparison-container {
-            margin-bottom: var(--space-lg);
-        }
-        .comparison-item {
-            text-align: center;
-        }
-        .comparison-item img {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-sm);
-        }
-        .ai-response {
-            background: var(--bg-secondary);
-            padding: var(--space-lg);
-            border-radius: var(--radius-md);
-            border-left: 3px solid var(--accent-green);
-            margin-bottom: var(--space-xl);
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-        .actions {
-            display: flex;
-            gap: var(--space-md);
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-    </style>
 </head>
 <body>
-    <div class="page-container">
-        <main class="main-content" style="justify-content: flex-start; padding-top: var(--space-xl);">
-            <!-- Loading state -->
-            <div id="loading-state" style="text-align: center; padding: var(--space-2xl) 0;">
-                <div class="loading-spinner" style="margin: 0 auto var(--space-lg);"></div>
-                <div class="loading-steps">
-                    <p class="step">AI正在理解你的想法……</p>
-                    <p class="step">正在分析这个空间的光线与尺度……</p>
-                    <p class="step">正在把你的感受转化为空间语言……</p>
-                    <p class="step">你的校园，正在生长中……</p>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="landing.html" class="nav-logo">
+                <span style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                         alt="Tsinghua SIGS"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
+                        <circle cx="24" cy="24" r="20" fill="white"/>
+                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <span>清华SIGS</span>
+                </span>
+            </a>
+            <div class="nav-center">
+                <div class="nav-links">
+                    <a href="landing.html" class="nav-link">
+                        <span lang="zh">首页</span><span lang="en">Home</span>
+                    </a>
+                    <a href="explore.html" class="nav-link">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </a>
+                    <a href="create.html" class="nav-link">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </a>
+                    <a href="gallery.html" class="nav-link">
+                        <span lang="zh">社区</span><span lang="en">Gallery</span>
+                    </a>
                 </div>
             </div>
+            <div class="lang-switcher" id="langSwitcher">
+                <span class="lang-active" lang="zh">中文</span>
+                <span class="lang-separator">/</span>
+                <span lang="en">EN</span>
+            </div>
+        </div>
+    </nav>
 
-            <!-- 结果展示区域（初始隐藏） -->
-            <div id="result-state" style="display: none;">
-                <div class="result-area">
-                    <div class="comparison-container">
-                        <div class="comparison-item">
-                            <p class="comparison-label">原始场景</p>
-                            <div class="skeleton" style="aspect-ratio: 16/9;"></div>
-                        </div>
-                        <div class="comparison-item">
-                            <p class="comparison-label">新生成的设计</p>
-                            <div class="skeleton" style="aspect-ratio: 16/9;"></div>
-                        </div>
-                    </div>
+    <!-- Stage 4: Generate -->
+    <section id="stage-generate" class="section visible">
+        <div class="generate-state">
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
                 </div>
+                <p class="loading-message" id="loadingMessage">
+                    <span lang="zh">AI正在理解你的想法……</span>
+                    <span lang="en">AI is understanding your ideas...</span>
+                </p>
+            </div>
 
-                <div class="ai-response" id="ai-response">
-                    AI 的回应将显示在这里...
+            <div class="result-container" id="resultContainer">
+                <div class="result-preview" id="resultPreview">
+                    <span class="placeholder">🏛️</span>
                 </div>
-
-                <div class="actions">
-                    <button class="btn btn-primary" id="btn-share">分享这个设计 →</button>
-                    <button class="btn btn-secondary" id="btn-adjust">重新调整想法</button>
-                    <button class="btn btn-ghost" id="btn-explore">继续探索其他地方</button>
+                <p class="result-text" id="resultText">
+                    <span lang="zh">你提到希望这里能有更多遮阴和停留的地方。我保留了原有的开放视野，在东侧加入了一组轻质廊架结构，搭配低矮的种植箱，让这个角落在午后变成可以安静坐下来的地方。</span>
+                    <span lang="en">You mentioned wanting more shade and seating areas here. I preserved the existing open view and added a lightweight pergola structure on the east side, paired with low planting boxes, making this corner a quiet place to sit in the afternoon.</span>
+                </p>
+                <div class="result-actions">
+                    <button class="action-btn" id="reviseBtn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M8 3L12 7L8 11M4 7H12" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 9V11C12 12.1 11.1 13 10 13H6C4.9 13 4 12.1 4 11V9" stroke-linecap="round"/>
+                        </svg>
+                        <span lang="zh">重新调整想法</span><span lang="en">Revise Ideas</span>
+                    </button>
+                    <button class="action-btn" id="shareBtn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M8 3C8 3 3 5 3 8C3 11 8 13 8 13C8 13 13 11 13 8C13 5 8 3 8 3Z" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="8" cy="8" r="2" fill="currentColor"/>
+                        </svg>
+                        <span lang="zh">分享这个设计</span><span lang="en">Share Design</span>
+                    </button>
+                    <a href="gallery.html" class="action-btn primary" id="continueExploreBtn">
+                        <span lang="zh">继续探索</span>
+                        <span lang="en">Continue Exploring</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M6 3L11 8L6 13" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </section>
+
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
     <script>
-        // TODO: 轮询 GET /api/v1/designs/{id}/status 直到生成完成
-        // 当前为占位：延迟后模拟显示结果
-        setTimeout(() => {
-            document.getElementById("loading-state").style.display = "none";
-            document.getElementById("result-state").style.display = "block";
-        }, 3000);
+        // Language Switcher
+        const langSwitcher = document.getElementById('langSwitcher');
 
-        document.getElementById("btn-share").addEventListener("click", () => {
-            navigateTo(PAGES.GALLERY);
+        function updateLanguageDisplay() {
+            if (APP_STATE.language === 'en') {
+                document.body.classList.add('lang-en');
+            } else {
+                document.body.classList.remove('lang-en');
+            }
+
+            const zhSpan = langSwitcher.querySelector('[lang="zh"]');
+            const enSpan = langSwitcher.querySelector('[lang="en"]');
+
+            if (APP_STATE.language === 'zh') {
+                zhSpan.classList.add('lang-active');
+                enSpan.classList.remove('lang-active');
+            } else {
+                enSpan.classList.add('lang-active');
+                zhSpan.classList.remove('lang-active');
+            }
+        }
+
+        updateLanguageDisplay();
+
+        langSwitcher.addEventListener('click', (e) => {
+            const clickedSpan = e.target.closest('[lang]');
+            if (clickedSpan) {
+                const clickedLang = clickedSpan.getAttribute('lang');
+                if (clickedLang === APP_STATE.language) return;
+            }
+
+            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', APP_STATE.language);
+            updateLanguageDisplay();
+
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
         });
 
-        document.getElementById("btn-adjust").addEventListener("click", () => {
-            navigateTo(PAGES.CREATE);
+        // 轮询生成状态，展示真实结果
+        const POLL_INTERVAL = 2000; // 2 秒轮询一次
+        const MAX_POLL_ATTEMPTS = 60; // 最多轮询 60 次（2 分钟）
+        let pollCount = 0;
+
+        async function pollDesignStatus() {
+            const designId = getState('designId');
+            if (!designId) {
+                // 没有 designId，回退到模拟模式
+                showFallbackLoading();
+                return;
+            }
+
+            const loadingMsg = document.getElementById('loadingMessage');
+            const statusMessages = APP_STATE.language === 'zh' ? [
+                'AI正在理解你的想法……',
+                '正在分析这个空间的光线与尺度……',
+                '正在把你的感受转化为空间语言……',
+                '你的校园，正在生长中……'
+            ] : [
+                'AI is understanding your ideas...',
+                'Analyzing the lighting and scale of this space...',
+                'Translating your feelings into spatial language...',
+                'Your campus is growing...'
+            ];
+
+            const poll = async () => {
+                pollCount++;
+                if (pollCount > MAX_POLL_ATTEMPTS) {
+                    loadingMsg.innerHTML = APP_STATE.language === 'zh'
+                        ? '<span lang="zh">生成超时，请稍后查看</span><span lang="en">Generation timed out, please check later</span>';
+                    return;
+                }
+
+                // 更新加载提示文字
+                const msgIndex = Math.min(pollCount - 1, statusMessages.length - 1);
+                loadingMsg.innerHTML = `<span lang="${APP_STATE.language}">${statusMessages[msgIndex]}</span>`;
+
+                try {
+                    const res = await API.getDesignStatus(designId);
+                    const status = res.data.status;
+
+                    if (status === 'completed') {
+                        // 生成完成 — 展示结果
+                        showResult(res.data);
+                        return;
+                    }
+                } catch (err) {
+                    console.error('轮询状态失败:', err);
+                }
+
+                // 继续轮询
+                setTimeout(poll, POLL_INTERVAL);
+            };
+
+            poll();
+        }
+
+        function showResult(designData) {
+            const resultPreview = document.getElementById('resultPreview');
+            const resultText = document.getElementById('resultText');
+
+            // 如果有生成图片则展示
+            if (designData.generated_image && designData.generated_image !== '生成中...') {
+                const img = document.createElement('img');
+                img.src = designData.generated_image;
+                img.alt = 'Generated Design';
+                img.style.maxWidth = '100%';
+                img.style.borderRadius = '12px';
+                resultPreview.textContent = '';
+                resultPreview.appendChild(img);
+            } else {
+                // agent_service 未实现时，显示 AI 文字响应
+                const aiResponse = getState('aiResponse') || '';
+                if (aiResponse && aiResponse !== 'AI正在分析您的创意，请稍候...') {
+                    resultText.querySelector('[lang="zh"]').textContent = aiResponse;
+                    resultText.querySelector('[lang="en"]').textContent = aiResponse;
+                }
+            }
+
+            if (designData.design_description) {
+                resultText.querySelector('[lang="zh"]').textContent = designData.design_description;
+                resultText.querySelector('[lang="en"]').textContent = designData.design_description;
+            }
+
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('resultContainer').classList.add('visible');
+        }
+
+        // 无 designId 时的回退模拟模式
+        async function showFallbackLoading() {
+            const messages = APP_STATE.language === 'zh' ? [
+                'AI正在理解你的想法……',
+                '正在分析这个空间的光线与尺度……',
+                '正在把你的感受转化为空间语言……',
+                '你的校园，正在生长中……'
+            ] : [
+                'AI is understanding your ideas...',
+                'Analyzing the lighting and scale of this space...',
+                'Translating your feelings into spatial language...',
+                'Your campus is growing...'
+            ];
+
+            const loadingMsg = document.getElementById('loadingMessage');
+
+            for (let i = 0; i < messages.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 1800));
+                loadingMsg.style.animation = 'none';
+                loadingMsg.offsetHeight;
+                loadingMsg.style.animation = 'fade-up 0.5s ease';
+                loadingMsg.innerHTML = `<span lang="zh">${messages[i]}</span><span lang="en">${messages[i]}</span>`;
+            }
+
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('resultContainer').classList.add('visible');
+        }
+
+        // 页面加载时开始轮询
+        pollDesignStatus();
+
+        // Revise button
+        document.getElementById('reviseBtn').addEventListener('click', () => {
+            window.location.href = 'create.html';
         });
 
-        document.getElementById("btn-explore").addEventListener("click", () => {
-            navigateTo(PAGES.EXPLORE);
+        // Share button
+        document.getElementById('shareBtn').addEventListener('click', async () => {
+            try {
+                const shareUrl = `${window.location.origin}`;
+                await navigator.clipboard.writeText(shareUrl);
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '链接已复制到剪贴板' : 'Link copied to clipboard',
+                    'success'
+                );
+            } catch (error) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '复制失败，请手动复制链接' : 'Copy failed, please copy link manually',
+                    'error'
+                );
+            }
         });
     </script>
 </body>

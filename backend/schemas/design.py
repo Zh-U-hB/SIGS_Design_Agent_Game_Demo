@@ -3,26 +3,26 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class DesignInputRequest(BaseModel):
     """创意输入请求 — 包含位置信息、情绪标签和用户自由描述"""
-    session_id: str
+    session_id: str = Field(max_length=64)
     location_x: float | None = None
     location_y: float | None = None
     location_z: float | None = None
-    location_label: str | None = None
+    location_label: str | None = Field(default=None, max_length=100)
     emotion_tags: list[str] | None = None
-    user_input: str
+    user_input: str = Field(max_length=2000)
     original_screenshot: str | None = None
 
 
 class DesignConfirmRequest(BaseModel):
     """设计确认请求 — 用户确认或编辑后的设计说明"""
-    session_id: str
-    design_id: str
-    design_description: str
+    session_id: str = Field(max_length=64)
+    design_id: str = ""
+    design_description: str = Field(max_length=2000)
 
 
 class DesignResponse(BaseModel):

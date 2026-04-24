@@ -1,0 +1,83 @@
+# Windsurf AI Rules
+
+> SIGS Design Agent Game Demo — Project Rules for Windsurf AI (Codeium)
+
+## Project
+
+AR-enabled campus exploration platform. Python/FastAPI backend + native HTML/CSS/JS frontend. PostgreSQL cloud DB. Package managers: uv (Python), npm (frontend). Linter: Ruff.
+
+## Code Style
+
+**Python:**
+- snake_case for files/vars/functions, PascalCase for classes, UPPER_SNAKE_CASE for constants
+- Max 200 lines per function, 800 lines per file
+- Docstrings for all functions/classes
+- No bare `except` — specify exception type
+- Parameterized SQL queries only
+
+**JavaScript:**
+- camelCase for vars/functions, UPPER_SNAKE_CASE for constants
+- kebab-case for file names and CSS classes
+- JSDoc comments for functions
+
+**API:**
+- Routes: `/api/v1/<plural-nouns>`
+- Response: `{"code": 0, "message": "success", "data": {...}}`
+- Auth: `X-API-Key` header
+- Error codes: 0=success, 40001=params, 40101=auth, 40401=not found, 50001=server error
+
+## Testing
+
+- Test file mirrors source file path
+- `backend/database/serve.py` → `test/backend/database/test_serve.py`
+- Use pytest, pytest-asyncio, httpx
+
+## Naming
+
+- Python files: `user_service.py`
+- HTML/CSS/JS: `game-board.html`, `api-client.js`
+- Tests: `test_<name>.py`
+- API routes: `/api/v1/users`, `/api/v1/designs`
+
+## Git
+
+- Commit: `<type>: <description>` (feat/fix/refactor/test/docs/style/chore)
+- Branches: main (dev), serve (stable), feature/xxx (optional)
+
+## Security
+
+- Validate all external input
+- No hardcoded secrets — use env vars
+- Required: DATABASE_URL, DATABASE_NAME, API_KEY, API_HOST, API_PORT, FRONTEND_URL
+
+## Documents
+
+When writing docs:
+1. Read `doc/00_文档存放规则.md`
+2. Reports → `doc/03_reports/`, Plans → `doc/04_plans/`, Architecture → `doc/01_architecture/`, Product → `doc/02_product/`
+3. Name: `[desc]_[YYYY-MM-DD].md` (reports/plans need date)
+4. Update `doc/INDEX.md`
+
+## Commands
+
+```bash
+cd backend && uv sync  # setup
+cd backend && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload  # run
+ruff check . && ruff check --fix . && ruff format .  # lint
+pytest  # test
+```
+
+## Priority
+
+开发规则.md > AGENT.md > .windsurfrules > other docs
+
+## Checklist
+
+- Naming conventions followed
+- Functions ≤200 lines, files ≤800 lines
+- No bare except
+- Parameterized SQL
+- Secrets in env vars only
+- Test file created
+- Passes `ruff check .`
+- Docs follow storage rules

@@ -1,6 +1,7 @@
 # deps.py — API 依赖注入
 # 职责：提供数据库会话、API Key 验证、当前会话获取等共享依赖
 
+import hmac
 from collections.abc import AsyncGenerator
 
 from fastapi import Depends, Header
@@ -19,7 +20,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def verify_api_key(x_api_key: str = Header(...)) -> str:
     """验证请求头中的 API Key"""
-    if x_api_key != settings.API_KEY:
+    if not hmac.compare_digest(x_api_key, settings.API_KEY):
         from fastapi import HTTPException
 
         raise HTTPException(status_code=401, detail=api_error(AUTH_ERROR, "API Key 缺失或无效"))

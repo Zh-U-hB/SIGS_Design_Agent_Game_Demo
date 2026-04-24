@@ -17,7 +17,8 @@ def add_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
         """请求参数验证失败 → 返回 40001"""
-        return JSONResponse(status_code=422, content=api_error(BAD_PARAMS, str(exc)))
+        logger.warning("参数验证失败 %s %s: %s", request.method, request.url.path, exc)
+        return JSONResponse(status_code=422, content=api_error(BAD_PARAMS, "请求参数错误"))
 
     @app.exception_handler(Exception)
     async def global_error_handler(request: Request, exc: Exception) -> JSONResponse:

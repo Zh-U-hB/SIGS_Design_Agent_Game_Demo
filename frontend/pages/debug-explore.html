@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Engine Debug - SIGS</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: monospace;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        .debug-section {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .debug-section h3 {
+            margin-top: 0;
+            color: #4cc9f0;
+        }
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        .status.ok { background: #06d6a0; color: #000; }
+        .status.error { background: #ef476f; color: #fff; }
+        .status.info { background: #118ab2; color: #fff; }
+        #testContainer {
+            width: 100%;
+            height: 400px;
+            background: #87ceeb;
+            border-radius: 8px;
+            position: relative;
+        }
+        #log {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .log-entry { margin: 2px 0; }
+        .log-error { color: #f00; }
+        .log-warn { color: #ff0; }
+        .log-info { color: #0ff; }
+    </style>
+</head>
+<body>
+    <h1>🔍 3D Engine Debug Page</h1>
+
+    <div class="debug-section">
+        <h3>1. Backend Check</h3>
+        <div id="backendStatus" class="status info">Checking...</div>
+        <div id="engineFilesStatus" class="status info">Checking...</div>
+    </div>
+
+    <div class="debug-section">
+        <h3>2. Three.js Import Check</h3>
+        <div id="threeStatus" class="status info">Checking...</div>
+    </div>
+
+    <div class="debug-section">
+        <h3>3. Engine Module Load</h3>
+        <div id="engineStatus" class="status info">Checking...</div>
+    </div>
+
+    <div class="debug-section">
+        <h3>4. 3D Scene Test</h3>
+        <div id="testContainer"></div>
+        <div id="sceneStatus" class="status info">Waiting...</div>
+    </div>
+
+    <div class="debug-section">
+        <h3>5. Console Log</h3>
+        <div id="log"></div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        const logEl = document.getElementById('log');
+
+        function log(msg, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(msg);
+        }
+
+        // 1. Check Backend
+        async function checkBackend() {
+            try {
+                const res = await fetch('/health');
+                if (res.ok) {
+                    document.getElementById('backendStatus').className = 'status ok';
+                    document.getElementById('backendStatus').textContent = '✓ Backend is running';
+                    log('Backend /health endpoint OK', 'info');
+                } else {
+                    throw new Error(`Health check failed: ${res.status}`);
+                }
+            } catch (e) {
+                document.getElementById('backendStatus').className = 'status error';
+                document.getElementById('backendStatus').textContent = `✗ Backend error: ${e.message}`;
+                log(`Backend check failed: ${e.message}`, 'error');
+            }
+
+            // Check engine files
+            try {
+                const res = await fetch('/engine/index.js');
+                if (res.ok) {
+                    const content = await res.text();
+                    if (content.includes('CampusEngine')) {
+                        document.getElementById('engineFilesStatus').className = 'status ok';
+                        document.getElementById('engineFilesStatus').textContent = '✓ Engine files accessible';
+                        log('Engine /engine/index.js loaded successfully', 'info');
+                    } else {
+                        throw new Error('Engine file does not contain CampusEngine class');
+                    }
+                } else {
+                    throw new Error(`Engine file not found: ${res.status}`);
+                }
+            } catch (e) {
+                document.getElementById('engineFilesStatus').className = 'status error';
+                document.getElementById('engineFilesStatus').textContent = `✗ Engine files error: ${e.message}`;
+                log(`Engine files check failed: ${e.message}`, 'error');
+            }
+        }
+
+        // 2. Check Three.js
+        async function checkThree() {
+            try {
+                const THREE = await import('three');
+                if (THREE.Scene && THREE.WebGLRenderer) {
+                    document.getElementById('threeStatus').className = 'status ok';
+                    document.getElementById('threeStatus').textContent = '✓ Three.js loaded successfully';
+                    log(`Three.js version: ${THREE.REVISION}`, 'info');
+                    return THREE;
+                } else {
+                    throw new Error('Three.js missing required classes');
+                }
+            } catch (e) {
+                document.getElementById('threeStatus').className = 'status error';
+                document.getElementById('threeStatus').textContent = `✗ Three.js error: ${e.message}`;
+                log(`Three.js check failed: ${e.message}`, 'error');
+                return null;
+            }
+        }
+
+        // 3. Check Engine Module
+        async function checkEngine() {
+            try {
+                log('Attempting to load /engine/index.js...', 'info');
+                const { CampusEngine } = await import('/engine/index.js');
+                if (CampusEngine) {
+                    document.getElementById('engineStatus').className = 'status ok';
+                    document.getElementById('engineStatus').textContent = '✓ CampusEngine class loaded';
+                    log('CampusEngine class loaded successfully', 'info');
+                    return CampusEngine;
+                } else {
+                    throw new Error('CampusEngine not exported');
+                }
+            } catch (e) {
+                document.getElementById('engineStatus').className = 'status error';
+                document.getElementById('engineStatus').textContent = `✗ Engine error: ${e.message}`;
+                log(`Engine module check failed: ${e.message}`, 'error');
+                log(`Error stack: ${e.stack}`, 'error');
+                return null;
+            }
+        }
+
+        // 4. Test Scene
+        async function testScene(CampusEngine) {
+            if (!CampusEngine) {
+                document.getElementById('sceneStatus').className = 'status error';
+                document.getElementById('sceneStatus').textContent = '✗ Cannot test: CampusEngine not loaded';
+                return;
+            }
+
+            try {
+                log('Creating CampusEngine instance...', 'info');
+                const container = document.getElementById('testContainer');
+
+                // Check container size
+                log(`Container size: ${container.clientWidth}x${container.clientHeight}`, 'info');
+
+                const engine = new CampusEngine({
+                    container: container,
+                    mode: 'explore',
+                    cameraMode: 'orbit',
+                    showBuildings: true,
+                    showMarkers: true,
+                    language: 'zh',
+                });
+
+                log('Starting engine...', 'info');
+                engine.start();
+
+                // Wait a bit for scene to render
+                setTimeout(() => {
+                    const canvas = container.querySelector('canvas');
+                    if (canvas) {
+                        document.getElementById('sceneStatus').className = 'status ok';
+                        document.getElementById('sceneStatus').textContent = `✓ 3D scene rendered! Canvas: ${canvas.width}x${canvas.height}`;
+                        log(`3D scene created successfully! Canvas size: ${canvas.width}x${canvas.height}`, 'info');
+
+                        // Check for buildings
+                        const scene = engine._sceneApi?.scene;
+                        if (scene) {
+                            let objectCount = 0;
+                            scene.traverse(() => objectCount++);
+                            log(`Scene objects count: ${objectCount}`, 'info');
+                        }
+                    } else {
+                        document.getElementById('sceneStatus').className = 'status error';
+                        document.getElementById('sceneStatus').textContent = '✗ No canvas found after engine.start()';
+                        log('Engine started but no canvas element created!', 'error');
+                    }
+                }, 2000);
+
+            } catch (e) {
+                document.getElementById('sceneStatus').className = 'status error';
+                document.getElementById('sceneStatus').textContent = `✗ Scene test error: ${e.message}`;
+                log(`Scene test failed: ${e.message}`, 'error');
+                log(`Error stack: ${e.stack}`, 'error');
+            }
+        }
+
+        // Run all checks
+        log('Starting diagnostics...', 'info');
+        await checkBackend();
+        const THREE = await checkThree();
+        const CampusEngine = await checkEngine();
+        await testScene(CampusEngine);
+        log('Diagnostics complete!', 'info');
+    </script>
+</body>
+</html>

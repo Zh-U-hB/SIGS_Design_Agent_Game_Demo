@@ -1,90 +1,242 @@
-<!-- explore.html — 阶段二：场景漫游与选点
-     职责：展示 UE Pixel Streaming 三维校园场景，用户选择感兴趣的位置后跳转到创意输入 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>场景漫游</title>
+    <title>场景漫游 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <style>
-        .ue-viewport {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-size: var(--font-size-lg);
-            margin-bottom: var(--space-lg);
-        }
-        .location-info {
-            text-align: center;
-            margin-bottom: var(--space-lg);
-        }
-        .location-info .label {
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
-            margin-bottom: var(--space-sm);
-        }
-        .location-info .name {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
-        }
-        .explore-hint {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
-            margin-top: var(--space-md);
-        }
-    </style>
+    <link rel="stylesheet" href="/engine/engine.css">
 </head>
 <body>
-    <div class="page-container">
-        <main class="main-content">
-            <div class="ue-viewport" id="ue-viewport">
-                UE Pixel Streaming 占位区域
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="landing.html" class="nav-logo">
+                <span style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                         alt="Tsinghua SIGS"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
+                        <circle cx="24" cy="24" r="20" fill="white"/>
+                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <span>清华SIGS</span>
+                </span>
+            </a>
+            <div class="nav-center">
+                <div class="nav-links">
+                    <a href="landing.html" class="nav-link">
+                        <span lang="zh">首页</span><span lang="en">Home</span>
+                    </a>
+                    <a href="explore.html" class="nav-link">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </a>
+                    <a href="create.html" class="nav-link">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </a>
+                    <a href="gallery.html" class="nav-link">
+                        <span lang="zh">社区</span><span lang="en">Gallery</span>
+                    </a>
+                </div>
             </div>
-            <div class="location-info">
-                <p class="label">当前选中</p>
-                <p class="name" id="location-name">尚未选择位置</p>
+            <div class="lang-switcher" id="langSwitcher">
+                <span class="lang-active" lang="zh">中文</span>
+                <span class="lang-separator">/</span>
+                <span lang="en">EN</span>
             </div>
-            <div style="text-align: center;">
-                <button class="btn btn-primary" id="btn-continue" disabled>选择这里，告诉AI我的想法 →</button>
+        </div>
+    </nav>
+
+    <!-- Stage 2: Explore -->
+    <section id="stage-explore" class="section visible">
+        <div class="explore-intro">
+            <span class="explore-label">Stage 02</span>
+            <h2 class="explore-title">
+                <span lang="zh">走进清华SIGS校园</span>
+                <span lang="en">Explore the Tsinghua SIGS Campus</span>
+            </h2>
+            <div class="explore-title-en">
+                <span lang="zh">探索清华SIGS校园</span>
+                <span lang="en">Explore Tsinghua SIGS Campus</span>
             </div>
-            <p class="explore-hint">走进这座校园，找一个让你有感觉的地方</p>
-        </main>
-    </div>
+            <p class="explore-desc">
+                <span lang="zh">找一个让你有感觉的地方——可以是你觉得不够好的，也可以是你想象中它本来的样子</span>
+                <span lang="en">Find a place that speaks to you—somewhere that needs improvement, or somewhere as you imagine it could be</span>
+            </p>
+        </div>
+
+        <div class="campus-map-container">
+            <div class="campus-map">
+                <div class="campus-engine-container" id="campusContainer"></div>
+            </div>
+
+            <div class="explore-modes">
+                <div class="mode-card active" data-mode="orbit">
+                    <svg class="mode-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="10" cy="10" r="7"/>
+                        <path d="M10 6V10L13 13" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 6C14 6 15 7 15 8C15 9 14 10 14 10" stroke-linecap="round"/>
+                    </svg>
+                    <span lang="zh">自动漫游</span><span lang="en">Auto Roam</span>
+                </div>
+                <div class="mode-card" data-mode="free">
+                    <svg class="mode-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M10 3L16 10L10 17L4 10L10 3Z" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="10" cy="10" r="2" fill="currentColor"/>
+                        <path d="M10 3V6M10 14V17M3 10H6M14 10H17" stroke-linecap="round"/>
+                    </svg>
+                    <span lang="zh">自由探索</span><span lang="en">Free Explore</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
-    <script>
-        // TODO: 集成 UE Pixel Streaming，处理位置选择交互
-        const locationName = document.getElementById("location-name");
-        const btnContinue = document.getElementById("btn-continue");
 
-        // 占位：模拟位置选择
-        document.getElementById("ue-viewport").addEventListener("click", () => {
-            locationName.textContent = "图书馆前庭（示例）";
-            btnContinue.disabled = false;
-            setState("selectedLocation", {
-                x: 100.0, y: 0.0, z: 50.0,
-                label: "图书馆前庭",
-                screenshot: null,
+    <!-- Three.js via CDN Import Map -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module">
+        // Language Switcher (需要在引擎加载前初始化)
+        const langSwitcher = document.getElementById('langSwitcher');
+
+        function updateLanguageDisplay() {
+            if (APP_STATE.language === 'en') {
+                document.body.classList.add('lang-en');
+            } else {
+                document.body.classList.remove('lang-en');
+            }
+
+            const zhSpan = langSwitcher.querySelector('[lang="zh"]');
+            const enSpan = langSwitcher.querySelector('[lang="en"]');
+
+            if (APP_STATE.language === 'zh') {
+                zhSpan.classList.add('lang-active');
+                enSpan.classList.remove('lang-active');
+            } else {
+                enSpan.classList.add('lang-active');
+                zhSpan.classList.remove('lang-active');
+            }
+        }
+
+        updateLanguageDisplay();
+
+        langSwitcher.addEventListener('click', (e) => {
+            const clickedSpan = e.target.closest('[lang]');
+            if (clickedSpan) {
+                const clickedLang = clickedSpan.getAttribute('lang');
+                if (clickedLang === APP_STATE.language) return;
+            }
+
+            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', APP_STATE.language);
+            updateLanguageDisplay();
+
+            if (window.campusEngine) {
+                window.campusEngine.setLanguage(APP_STATE.language);
+            }
+        });
+
+        // 确保页面加载时有 session
+        (async () => {
+            let sessionId = getState('sessionId');
+            if (!sessionId) {
+                try {
+                    const res = await API.createSession();
+                    sessionId = res.data.session_id;
+                    setState('sessionId', sessionId);
+                    APP_STATE.sessionId = sessionId;
+                } catch (err) {
+                    console.error('创建会话失败:', err);
+                }
+            } else {
+                APP_STATE.sessionId = sessionId;
+            }
+        })();
+
+        // 尝试初始化 3D 引擎
+        try {
+            const { CampusEngine } = await import('/engine/index.js');
+
+            const container = document.getElementById('campusContainer');
+            if (!container) throw new Error('campusContainer not found');
+
+            const engine = new CampusEngine({
+                container: container,
+                mode: 'explore',
+                cameraMode: 'orbit',
+                showBuildings: true,
+                showMarkers: true,
+                language: APP_STATE.language,
             });
-        });
+            window.campusEngine = engine;
 
-        btnContinue.addEventListener("click", () => {
-            navigateTo(PAGES.CREATE);
-        });
+            engine.on('location-selected', async (data) => {
+                const screenshot = await engine.captureScreenshot();
+
+                const locationData = {
+                    location: data.buildingId,
+                    label: data.label,
+                    mood: data.mood,
+                    location_x: data.screenPercent.left,
+                    location_y: data.screenPercent.top,
+                    location_z: data.worldPosition.y || 0,
+                };
+
+                APP_STATE.selectedLocation = locationData;
+                setState('selectedLocation', locationData);
+                setState('originalScreenshot', screenshot);
+
+                Toast.show(
+                    APP_STATE.language === 'zh'
+                        ? `已选择: ${data.label}`
+                        : `Selected: ${data.label}`,
+                    'info'
+                );
+
+                // 立即跳转到创作页面
+                setTimeout(() => {
+                    window.location.href = 'create.html';
+                }, 500);
+            });
+
+            engine.start();
+            console.log('[Engine] 3D 校园引擎启动成功');
+
+            // Mode toggle — 切换相机模式
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+
+                    const mode = card.dataset.mode;
+                    engine.setCameraMode(mode);
+                });
+            });
+        } catch (err) {
+            console.error('[Engine] 3D 引擎加载失败，使用回退模式:', err);
+            Toast.show('3D 引擎加载失败，请刷新页面重试', 'error');
+        }
     </script>
 </body>
 </html>

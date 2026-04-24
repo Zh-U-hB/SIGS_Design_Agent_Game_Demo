@@ -1,6 +1,8 @@
 # serve.py — 数据库服务工具函数
 # 职责：提供建表、删表、连通性检查等开发辅助函数
 
+from sqlalchemy import text
+
 from backend.database.connection import _get_engine
 from backend.database.models import Base
 from backend.utils.logger import get_logger
@@ -30,7 +32,7 @@ async def check_connection() -> bool:
     try:
         engine = _get_engine()
         async with engine.connect() as conn:
-            await conn.execute(conn.get_raw_connection().__class__.__module__ + ".text", None)
+            await conn.execute(text("SELECT 1"))
         return True
     except Exception as e:
         logger.error("数据库连接失败: %s", e)

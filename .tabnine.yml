@@ -1,0 +1,186 @@
+# Tabnine Configuration
+
+# SIGS Design Agent Game Demo — Project-Specific Guidelines for Tabnine
+
+# This file provides context to Tabnine AI assistant for this codebase.
+
+# ============================================
+# PROJECT OVERVIEW
+# ============================================
+
+project:
+  name: "SIGS Design Agent Game Demo"
+  description: "AR-enabled campus exploration and co-creation platform for Tsinghua SIGS"
+  tech_stack: "Python/FastAPI backend, native HTML/CSS/JS frontend, PostgreSQL cloud DB"
+  package_managers: "uv (Python), npm (frontend)"
+  linter: "Ruff (backend)"
+
+# ============================================
+# PYTHON GUIDELINES
+# ============================================
+
+python:
+  naming:
+    files: "snake_case"
+    variables: "snake_case"
+    functions: "snake_case"
+    classes: "PascalCase"
+    constants: "UPPER_SNAKE_CASE"
+
+  conventions:
+    - "Use docstrings for all function and class definitions"
+    - "Maximum function length: 200 lines"
+    - "Maximum file length: 800 lines"
+    - "Never use bare 'except' — always specify exception type"
+    - "Use parameterized SQL queries only — never concatenate strings"
+
+  imports:
+    preference: "absolute imports with 'backend.' prefix for consistency"
+
+# ============================================
+# JAVASCRIPT GUIDELINES
+# ============================================
+
+javascript:
+  naming:
+    variables: "camelCase"
+    functions: "camelCase"
+    constants: "UPPER_SNAKE_CASE"
+    files: "kebab-case"
+    css_classes: "kebab-case"
+
+  conventions:
+    - "Use JSDoc style comments for function documentation"
+
+# ============================================
+# API CONVENTIONS
+# ============================================
+
+api:
+  prefix: "/api/v1/"
+  naming: "plural lowercase nouns"
+
+  response_format:
+    success: '{"code": 0, "message": "success", "data": {...}}'
+    error: '{"code": <code>, "message": "<description>", "data": null}'
+
+  authentication: "X-API-Key header"
+
+  error_codes:
+    success: 0
+    bad_params: 40001
+    auth_failed: 40101
+    not_found: 40401
+    server_error: 50001
+
+# ============================================
+# TESTING CONVENTIONS
+# ============================================
+
+testing:
+  framework: "pytest"
+  async_framework: "pytest-asyncio"
+  http_client: "httpx"
+
+  file_structure: "mirror source paths"
+  examples:
+    - source: "backend/database/serve.py"
+      test: "test/backend/database/test_serve.py"
+    - source: "backend/api/design.py"
+      test: "test/backend/api/test_design.py"
+
+# ============================================
+# GIT CONVENTIONS
+# ============================================
+
+git:
+  commit_format: "<type>: <description>"
+  commit_types: ["feat", "fix", "refactor", "test", "docs", "style", "chore"]
+  example: "feat: add user registration endpoint"
+
+  branches:
+    main: "development branch"
+    serve: "stable/production branch"
+    feature: "optional feature branches (feature/xxx)"
+
+# ============================================
+# SECURITY RULES
+# ============================================
+
+security:
+  input_validation: "ALL external input must be validated"
+  secrets: "NEVER hardcode — use environment variables only"
+  sql: "Parameterized queries ONLY — never string concatenation"
+  logging: "Never log sensitive information (API keys, passwords)"
+
+  required_env_vars:
+    - "DATABASE_URL"
+    - "DATABASE_NAME"
+    - "API_KEY"
+    - "API_HOST"
+    - "API_PORT"
+    - "FRONTEND_URL"
+
+# ============================================
+# DOCUMENTATION RULES
+# ============================================
+
+documentation:
+  storage_rules: "doc/00_文档存放规则.md — READ FIRST before writing docs"
+
+  directories:
+    reports: "doc/03_reports/"
+    plans: "doc/04_plans/"
+    architecture: "doc/01_architecture/"
+    product: "doc/02_product/"
+    meetings: "doc/05_meetings/"
+
+  naming_format: "[description]_[YYYY-MM-DD].md"  # date required for reports and plans
+
+  index: "Update doc/INDEX.md when adding new documents"
+
+# ============================================
+# COMMON COMMANDS
+# ============================================
+
+commands:
+  setup: "cd backend && uv sync"
+  run: "cd backend && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+  lint_check: "ruff check ."
+  lint_fix: "ruff check --fix ."
+  format: "ruff format ."
+  test: "pytest"
+
+# ============================================
+# PRIORITY ORDER
+# ============================================
+
+priority:
+  1: "开发规则.md (highest priority — authoritative rules in Chinese)"
+  2: "AGENT.md"
+  3: ".tabnine.yml (this file)"
+  4: "other documentation"
+
+# ============================================
+# COMPLETION CHECKLIST
+# ============================================
+
+checklist:
+  - "Code follows naming conventions"
+  - "Functions ≤ 200 lines, files ≤ 800 lines"
+  - "No bare 'except' clauses"
+  - "SQL uses parameterized queries"
+  - "Secrets via environment variables only"
+  - "Test file created (mirrors source path)"
+  - "Passes 'ruff check .'"
+
+# ============================================
+# FILE NAMING EXAMPLES
+# ============================================
+
+file_naming:
+  python_files: "user_service.py, database/connection.py, api/design.py"
+  html_files: "game-board.html, landing.html, create.html"
+  css_files: "variables.css, layout.css, components.css"
+  js_files: "api.js, state.js, router.js, utils.js"
+  test_files: "test_user_service.py, test_design_service.py"

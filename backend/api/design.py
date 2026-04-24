@@ -22,33 +22,15 @@ async def submit_creative_input(
     return api_success(data=result)
 
 
-@design_router.post("/designs/confirm")
+@design_router.post("/designs/{design_id}/confirm")
 async def confirm_design(
+    design_id: str,
     request: DesignConfirmRequest,
     db: AsyncSession = Depends(get_db),
 ):
     """确认设计说明 → 触发图生图"""
+    request.design_id = design_id
     result = await design_service.confirm_design(db, request)
-    return api_success(data=result)
-
-
-@design_router.get("/designs/{design_id}")
-async def get_design(
-    design_id: str,
-    db: AsyncSession = Depends(get_db),
-):
-    """获取设计详情"""
-    result = await design_service.get_design(db, design_id)
-    return api_success(data=result)
-
-
-@design_router.get("/designs/{design_id}/status")
-async def get_design_status(
-    design_id: str,
-    db: AsyncSession = Depends(get_db),
-):
-    """查询生成状态（轮询）"""
-    result = await design_service.get_design_status(db, design_id)
     return api_success(data=result)
 
 
@@ -75,6 +57,26 @@ async def get_map_points(
     return api_success(data=result)
 
 
+@design_router.get("/designs/{design_id}")
+async def get_design(
+    design_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """获取设计详情"""
+    result = await design_service.get_design(db, design_id)
+    return api_success(data=result)
+
+
+@design_router.get("/designs/{design_id}/status")
+async def get_design_status(
+    design_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """查询生成状态（轮询）"""
+    result = await design_service.get_design_status(db, design_id)
+    return api_success(data=result)
+
+
 @design_router.post("/designs/{design_id}/like")
 async def like_design(
     design_id: str,
@@ -85,6 +87,8 @@ async def like_design(
     from backend.services import session_service
 
     user = await session_service.get_session(db, session_id)
+    if not user:
+        return api_success(data={"success": False, "message": "会话不存在"}, code=40401)
     result = await like_service.like_design(db, str(user["id"]), design_id)
     return api_success(data=result)
 
@@ -99,5 +103,7 @@ async def unlike_design(
     from backend.services import session_service
 
     user = await session_service.get_session(db, session_id)
+    if not user:
+        return api_success(data={"success": False, "message": "会话不存在"}, code=40401)
     result = await like_service.unlike_design(db, str(user["id"]), design_id)
     return api_success(data=result)
