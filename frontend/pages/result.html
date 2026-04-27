@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设计生成 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/loading.css">
+    <style>
+        /* 生成容器 */
+        .generate-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 加载状态 */
+        .loading-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .loading-animation {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .loading-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top-color: #660874;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .loading-ring:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            border-top-color: #a855f7;
+            animation-duration: 2s;
+            animation-direction: reverse;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .loading-subtext {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* 结果展示区域 */
+        .result-section {
+            display: none;
+        }
+
+        .result-section.visible {
+            display: block;
+        }
+
+        .result-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #660874;
+            margin-bottom: 16px;
+        }
+
+        .result-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* 图片选择区域 */
+        .images-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .image-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border: 4px solid transparent;
+        }
+
+        .image-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(102, 8, 116, 0.2);
+        }
+
+        .image-card.selected {
+            border-color: #660874;
+            background: linear-gradient(135deg, rgba(102, 8, 116, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+        }
+
+        .image-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #660874;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .image-wrapper {
+            width: 100%;
+            height: 350px;
+            position: relative;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover .image-wrapper img {
+            transform: scale(1.05);
+        }
+
+        /* 占位符样式 */
+        .image-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .image-placeholder.loading {
+            color: #660874;
+        }
+
+        .image-placeholder.loading svg {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .image-placeholder svg {
+            width: 64px;
+            height: 64px;
+        }
+
+        .image-placeholder-text {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .image-placeholder-subtext {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .image-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: rgba(102, 8, 116, 0.95);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            z-index: 5;
+        }
+
+        .image-info {
+            padding: 24px;
+        }
+
+        .image-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .image-desc {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 按钮组 */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 20px rgba(102, 8, 116, 0.3);
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(102, 8, 116, 0.4);
+        }
+
+        .action-btn.primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: #660874;
+            border: 2px solid #660874;
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(102, 8, 116, 0.05);
+        }
+
+        .action-btn.outline {
+            background: transparent;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+
+        .action-btn.outline:hover {
+            border-color: #660874;
+            color: #660874;
+        }
+
+        /* 设计说明 */
+        .design-summary {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #660874;
+        }
+
+        .summary-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .images-selection {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="landing.html" class="nav-logo">
+                <span style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
+                         alt="Tsinghua SIGS">
+                    <span>清华SIGS</span>
+                </span>
+            </a>
+            <div class="nav-center">
+                <div class="nav-links">
+                    <a href="landing.html" class="nav-link">
+                        <span lang="zh">首页</span><span lang="en">Home</span>
+                    </a>
+                    <a href="explore.html" class="nav-link">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </a>
+                    <a href="create.html" class="nav-link">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </a>
+                    <a href="gallery.html" class="nav-link">
+                        <span lang="zh">社区</span><span lang="en">Gallery</span>
+                    </a>
+                </div>
+            </div>
+            <div class="lang-switcher" id="langSwitcher">
+                <span class="lang-active" lang="zh">中文</span>
+                <span class="lang-separator">/</span>
+                <span lang="en">EN</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section visible">
+        <div class="generate-container">
+            <!-- 加载状态 -->
+            <div class="loading-state" id="loadingState">
+                <div class="loading-animation">
+                    <div class="loading-ring"></div>
+                    <div class="loading-ring"></div>
+                </div>
+                <div class="loading-text" id="loadingText">
+                    <span lang="zh">AI 正在生成你的设计方案...</span>
+                    <span lang="en">AI is generating your design方案...</span>
+                </div>
+                <div class="loading-subtext" id="loadingSubtext">
+                    <span lang="zh">这可能需要几秒钟时间，请稍候...</span>
+                    <span lang="en">This may take a few seconds, please wait...</span>
+                </div>
+                <div style="margin-top: 30px;">
+                    <button class="action-btn primary" id="skipToResultBtn" style="margin: 0 auto;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        <span lang="zh">立刻显示结果</span>
+                        <span lang="en">Show Results Now</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div class="result-section" id="resultSection">
+                <h2 class="result-title">
+                    <span lang="zh">选择你喜欢的方案</span>
+                    <span lang="en">Choose Your Favorite Design</span>
+                </h2>
+                <p class="result-subtitle">
+                    <span lang="zh">AI 为你生成了两个设计方案，点击选择你更喜欢的一个</span>
+                    <span lang="en">AI has generated two design options for you, click to choose your favorite</span>
+                </p>
+
+                <!-- 设计说明 -->
+                <div class="design-summary" id="designSummary">
+                    <div class="summary-header">
+                        <div class="summary-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="summary-title">
+                            <span lang="zh">AI 设计说明</span>
+                            <span lang="en">AI Design Summary</span>
+                        </div>
+                    </div>
+                    <div class="summary-content" id="summaryContent"></div>
+                </div>
+
+                <!-- 图片选择区域 -->
+                <div class="images-selection">
+                    <!-- 图片1 -->
+                    <div class="image-card" id="imageCard1">
+                        <div class="image-wrapper" id="imageWrapper1">
+                            <div class="image-placeholder loading" id="placeholder1">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                                <div class="image-placeholder-text">
+                                    <span lang="zh">方案一</span>
+                                    <span lang="en">Option 1</span>
+                                </div>
+                                <div class="image-placeholder-subtext">
+                                    <span lang="zh">AI正在生成中...</span>
+                                    <span lang="en">AI is generating...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="image-number">1</div>
+                        <div class="image-info">
+                            <div class="image-title">
+                                <span lang="zh">设计方案一</span>
+                                <span lang="en">Design Option 1</span>
+                            </div>
+                            <div class="image-desc">
+                                <span lang="zh">现代简约风格，强调功能性</span>
+                                <span lang="en">Modern minimalist style, emphasis on functionality</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 图片2 -->
+                    <div class="image-card" id="imageCard2">
+                        <div class="image-wrapper" id="imageWrapper2">
+                            <div class="image-placeholder loading" id="placeholder2">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                                <div class="image-placeholder-text">
+                                    <span lang="zh">方案二</span>
+                                    <span lang="en">Option 2</span>
+                                </div>
+                                <div class="image-placeholder-subtext">
+                                    <span lang="zh">AI正在生成中...</span>
+                                    <span lang="en">AI is generating...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="image-number">2</div>
+                        <div class="image-info">
+                            <div class="image-title">
+                                <span lang="zh">设计方案二</span>
+                                <span lang="en">Design Option 2</span>
+                            </div>
+                            <div class="image-desc">
+                                <span lang="zh">自然有机风格，融入环境</span>
+                                <span lang="en">Natural organic style, blends with environment</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="action-btn primary" id="selectBtn1" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <span lang="zh">选择方案 1</span>
+                        <span lang="en">Select Option 1</span>
+                    </button>
+                    <button class="action-btn primary" id="selectBtn2" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <span lang="zh">选择方案 2</span>
+                        <span lang="en">Select Option 2</span>
+                    </button>
+                </div>
+
+                <!-- 更多操作按钮 -->
+                <div class="action-buttons">
+                    <button class="action-btn secondary" id="regenerateBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                        </svg>
+                        <span lang="zh">重新生成</span>
+                        <span lang="en">Regenerate</span>
+                    </button>
+                    <button class="action-btn secondary" id="shareToCommunityBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        <span lang="zh">分享到社区</span>
+                        <span lang="en">Share to Gallery</span>
+                    </button>
+                    <button class="action-btn outline" id="shareLinkBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                        <span lang="zh">复制链接</span>
+                        <span lang="en">Copy Link</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/state.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/router.js"></script>
+    <script>
+        // 设计选项定义（与create.html保持一致）
+        const DESIGN_CHOICES = [
+            {
+                id: 'greenery',
+                title: { zh: '增加绿化景观', en: 'Add Greenery' }
+            },
+            {
+                id: 'seating',
+                title: { zh: '增加休息座椅', en: 'Add Seating' }
+            },
+            {
+                id: 'shading',
+                title: { zh: '改善遮阳设施', en: 'Better Shading' }
+            },
+            {
+                id: 'lighting',
+                title: { zh: '优化照明设计', en: 'Optimize Lighting' }
+            },
+            {
+                id: 'pathway',
+                title: { zh: '优化步行路径', en: 'Optimize Walkways' }
+            },
+            {
+                id: 'art',
+                title: { zh: '增加艺术装置', en: 'Add Art Installations' }
+            }
+        ];
+
+        // 当前状态
+        let selectedImageIndex = null;
+        let userChoices = null;
+        let designId = null;
+        let imagesGenerated = false;
+
+        // DOM 元素
+        const loadingState = document.getElementById('loadingState');
+        const loadingText = document.getElementById('loadingText');
+        const loadingSubtext = document.getElementById('loadingSubtext');
+        const resultSection = document.getElementById('resultSection');
+        const imageCard1 = document.getElementById('imageCard1');
+        const imageCard2 = document.getElementById('imageCard2');
+        const placeholder1 = document.getElementById('placeholder1');
+        const placeholder2 = document.getElementById('placeholder2');
+        const selectBtn1 = document.getElementById('selectBtn1');
+        const selectBtn2 = document.getElementById('selectBtn2');
+        const summaryContent = document.getElementById('summaryContent');
+
+        // 语言切换
+        const langSwitcher = document.getElementById('langSwitcher');
+
+        function updateLanguageDisplay() {
+            if (APP_STATE.language === 'en') {
+                document.body.classList.add('lang-en');
+            } else {
+                document.body.classList.remove('lang-en');
+            }
+
+            const zhSpan = langSwitcher.querySelector('[lang="zh"]');
+            const enSpan = langSwitcher.querySelector('[lang="en"]');
+
+            if (APP_STATE.language === 'zh') {
+                zhSpan.classList.add('lang-active');
+                enSpan.classList.remove('lang-active');
+            } else {
+                enSpan.classList.add('lang-active');
+                zhSpan.classList.remove('lang-active');
+            }
+        }
+
+        langSwitcher.addEventListener('click', (e) => {
+            const clickedSpan = e.target.closest('[lang]');
+            if (clickedSpan) {
+                const clickedLang = clickedSpan.getAttribute('lang');
+                if (clickedLang === APP_STATE.language) return;
+            }
+
+            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', APP_STATE.language);
+            updateLanguageDisplay();
+
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
+        });
+
+        // 加载用户数据
+        function loadUserData() {
+            userChoices = getState('userChoices');
+            designId = getState('designId');
+
+            if (!userChoices) {
+                console.log('没有用户选择，但仍然显示结果页面');
+                // 不再强制跳转，允许查看结果
+                userChoices = []; // 设置为空数组
+            }
+
+            // 显示AI响应
+            const aiResponse = getState('aiResponse');
+            if (aiResponse) {
+                summaryContent.innerHTML = `<p>${aiResponse}</p>`;
+            } else {
+                const choices = Array.isArray(userChoices) && userChoices.length > 0
+                    ? userChoices.map(id => {
+                        const choice = DESIGN_CHOICES.find(c => c.id === id);
+                        return choice ? choice.title[APP_STATE.language] : id;
+                      }).join('、')
+                    : (APP_STATE.language === 'zh' ? '全部改进方向' : 'All improvements');
+                summaryContent.innerHTML = `<p>${APP_STATE.language === 'zh' ? `基于你的选择「${choices}」，AI正在为你生成两个设计方案。` : `Based on your choices "${choices}", AI is generating two design options for you.`}</p>`;
+            }
+
+            return true;
+        }
+
+        // 模拟图片生成过程
+        async function simulateImageGeneration() {
+            const loadingMessages = APP_STATE.language === 'zh' ? [
+                'AI 正在分析你的选择...',
+                '正在生成设计方案...',
+                '正在渲染效果图...',
+                '正在优化细节...',
+                '即将完成...'
+            ] : [
+                'AI is analyzing your choices...',
+                'Generating design方案...',
+                'Rendering visualizations...',
+                'Optimizing details...',
+                'Almost done...'
+            ];
+
+            for (let i = 0; i < loadingMessages.length; i++) {
+                loadingText.innerHTML = `<span lang="${APP_STATE.language}">${loadingMessages[i]}</span>`;
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+        }
+
+        // 显示图片占位（后端未接入时的状态）
+        function showImagePlaceholders() {
+            placeholder1.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <div class="image-placeholder-text">
+                    <span lang="zh">方案一</span>
+                    <span lang="en">Option 1</span>
+                </div>
+                <div class="image-placeholder-subtext">
+                    <span lang="zh">等待后端生成图片...</span>
+                    <span lang="en">Waiting for backend image generation...</span>
+                </div>
+            `;
+
+            placeholder2.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <div class="image-placeholder-text">
+                    <span lang="zh">方案二</span>
+                    <span lang="en">Option 2</span>
+                </div>
+                <div class="image-placeholder-subtext">
+                    <span lang="zh">等待后端生成图片...</span>
+                    <span lang="en">Waiting for backend image generation...</span>
+                </div>
+            `;
+
+            placeholder1.classList.remove('loading');
+            placeholder2.classList.remove('loading');
+        }
+
+        // 选择图片
+        function selectImage(index) {
+            selectedImageIndex = index;
+
+            // 更新选中状态
+            imageCard1.classList.toggle('selected', index === 1);
+            imageCard2.classList.toggle('selected', index === 2);
+
+            // 启用按钮
+            selectBtn1.disabled = false;
+            selectBtn2.disabled = false;
+            selectBtn1.classList.toggle('primary', index !== 1);
+            selectBtn1.classList.toggle('outline', index === 1);
+            selectBtn2.classList.toggle('primary', index !== 2);
+            selectBtn2.classList.toggle('outline', index === 2);
+        }
+
+        // 立刻显示结果按钮
+        document.getElementById('skipToResultBtn').addEventListener('click', () => {
+            console.log('点击立刻显示结果按钮');
+            // 立即隐藏加载状态，显示结果
+            loadingState.style.display = 'none';
+            resultSection.classList.add('visible');
+            // 显示图片占位
+            showImagePlaceholders();
+            console.log('结果区域已显示');
+        });
+
+        // 图片卡片点击事件
+        imageCard1.addEventListener('click', () => selectImage(1));
+        imageCard2.addEventListener('click', () => selectImage(2));
+
+        // 选择按钮事件
+        selectBtn1.addEventListener('click', () => {
+            selectImage(1);
+            confirmSelection();
+        });
+
+        selectBtn2.addEventListener('click', () => {
+            selectImage(2);
+            confirmSelection();
+        });
+
+        // 确认选择
+        async function confirmSelection() {
+            if (selectedImageIndex === null) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请先选择一个方案' : 'Please select an option first',
+                    'warning'
+                );
+                return;
+            }
+
+            Toast.show(
+                APP_STATE.language === 'zh' ? '正在保存你的选择...' : 'Saving your selection...',
+                'info'
+            );
+
+            // 保存选择
+            const selectedData = {
+                index: selectedImageIndex,
+                title: APP_STATE.language === 'zh' ? `设计方案${selectedImageIndex}` : `Design Option ${selectedImageIndex}`,
+                url: null // 后端未接入，暂时为空
+            };
+            setState('selectedImage', selectedData);
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // 跳转到完成页面（可选：gallery.html 或其他最终页面）
+            // 暂时保持在当前页面显示选择状态
+            Toast.show(
+                APP_STATE.language === 'zh' ? '已保存你的选择！' : 'Your selection has been saved!',
+                'success'
+            );
+        }
+
+        // 重新生成
+        document.getElementById('regenerateBtn').addEventListener('click', () => {
+            Toast.show(
+                APP_STATE.language === 'zh' ? '正在重新生成...' : 'Regenerating...',
+                'info'
+            );
+
+            // 重置状态
+            selectedImageIndex = null;
+            imageCard1.classList.remove('selected');
+            imageCard2.classList.remove('selected');
+            selectBtn1.disabled = true;
+            selectBtn2.disabled = true;
+            selectBtn1.classList.add('primary');
+            selectBtn1.classList.remove('outline');
+            selectBtn2.classList.add('primary');
+            selectBtn2.classList.remove('outline');
+
+            // 重新开始生成流程
+            startGeneration();
+        });
+
+        // 分享到社区
+        document.getElementById('shareToCommunityBtn').addEventListener('click', async () => {
+            const sessionId = getState('sessionId');
+            if (!sessionId) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请先开始探索' : 'Please start exploring first',
+                    'warning'
+                );
+                return;
+            }
+
+            Toast.show(
+                APP_STATE.language === 'zh' ? '正在发布到社区...' : 'Publishing to gallery...',
+                'info'
+            );
+
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            Toast.show(
+                APP_STATE.language === 'zh' ? '已成功发布到社区！' : 'Successfully published to gallery!',
+                'success'
+            );
+
+            setTimeout(() => {
+                window.location.href = 'gallery.html';
+            }, 1000);
+        });
+
+        // 复制链接
+        document.getElementById('shareLinkBtn').addEventListener('click', async () => {
+            try {
+                const shareUrl = `${window.location.origin}/result.html?id=${designId || 'demo'}`;
+                await navigator.clipboard.writeText(shareUrl);
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '链接已复制到剪贴板' : 'Link copied to clipboard',
+                    'success'
+                );
+            } catch (error) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '复制失败，请手动复制链接' : 'Copy failed, please copy link manually',
+                    'error'
+                );
+            }
+        });
+
+        // 开始生成流程
+        async function startGeneration() {
+            console.log('开始生成流程');
+            loadingState.style.display = 'block';
+            resultSection.classList.remove('visible');
+            console.log('加载状态已显示，结果区域已隐藏');
+
+            await simulateImageGeneration();
+
+            loadingState.style.display = 'none';
+            resultSection.classList.add('visible');
+            console.log('结果区域已显示');
+
+            // 显示图片占位（等待后端）
+            showImagePlaceholders();
+        }
+
+        // 初始化
+        async function init() {
+            console.log('=== result.html 初始化开始 ===');
+            updateLanguageDisplay();
+            console.log('语言显示已更新');
+
+            if (!loadUserData()) {
+                console.log('加载用户数据失败');
+                return;
+            }
+            console.log('用户数据加载成功');
+
+            // 开始生成流程
+            await startGeneration();
+            console.log('=== result.html 初始化完成 ===');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

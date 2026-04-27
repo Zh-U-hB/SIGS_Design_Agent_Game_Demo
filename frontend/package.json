@@ -1,0 +1,11 @@
+{
+  "name": "sigs-frontend",
+  "version": "0.1.0",
+  "description": "SIGS Design Agent Game Demo - Frontend",
+  "scripts": {
+    "start": "npx live-server --port=3000 --open=/pages/landing.html"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

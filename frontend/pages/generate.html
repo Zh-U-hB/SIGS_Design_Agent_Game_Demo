@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生成设计 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
+    <title>设计生成 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,23 +12,410 @@
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
+    <style>
+        /* 生成容器 */
+        .generate-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 加载状态 */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading-animation {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .loading-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top-color: #660874;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .loading-ring:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            border-top-color: #a855f7;
+            animation-duration: 2s;
+            animation-direction: reverse;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .loading-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 图片选择区域 */
+        .images-selection {
+            display: none;
+        }
+
+        .images-selection.visible {
+            display: block;
+        }
+
+        .selection-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #660874;
+            margin-bottom: 12px;
+        }
+
+        .selection-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .image-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .image-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(102, 8, 116, 0.2);
+        }
+
+        .image-card.selected {
+            border: 4px solid #660874;
+            transform: scale(1.02);
+        }
+
+        .image-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: #660874;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .image-wrapper {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            background: #f5f5f5;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .image-wrapper .placeholder {
+            color: #999;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .image-wrapper .placeholder svg {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 8px;
+            opacity: 0.3;
+        }
+
+        .image-card:hover .image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .image-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 36px;
+            height: 36px;
+            background: rgba(102, 8, 116, 0.9);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .image-info {
+            padding: 20px;
+        }
+
+        .image-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .image-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* 操作按钮区域 */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            color: white;
+            border: none;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 8, 116, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: #660874;
+            border: 2px solid #660874;
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(102, 8, 116, 0.05);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 分享区域 */
+        .share-section {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(102, 8, 116, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+            border-radius: 16px;
+        }
+
+        .share-section.visible {
+            display: block;
+        }
+
+        .share-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #660874;
+            margin-bottom: 20px;
+        }
+
+        .share-options {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .share-btn:hover {
+            border-color: #660874;
+            color: #660874;
+        }
+
+        /* 设计说明 */
+        .design-summary {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #660874;
+        }
+
+        .summary-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* 进度指示 */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            opacity: 1;
+        }
+
+        .progress-step.completed {
+            opacity: 0.7;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .progress-step.active .step-number {
+            background: #660874;
+            color: white;
+        }
+
+        .progress-step.completed .step-number {
+            background: #a855f7;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .images-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-steps {
+                gap: 20px;
+            }
+
+            .step-label {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Navigation -->
     <nav class="nav">
         <div class="nav-content">
             <a href="landing.html" class="nav-logo">
                 <span style="display: flex; align-items: center; gap: 12px;">
                     <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
-                         alt="Tsinghua SIGS"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
-                        <circle cx="24" cy="24" r="20" fill="white"/>
-                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
-                    </svg>
+                         alt="Tsinghua SIGS">
                     <span>清华SIGS</span>
                 </span>
             </a>
@@ -56,50 +443,172 @@
         </div>
     </nav>
 
-    <!-- Stage 4: Generate -->
-    <section id="stage-generate" class="section visible">
-        <div class="generate-state">
-            <div class="loading-container" id="loadingContainer">
-                <div class="loading-spinner">
-                    <div class="spinner-ring"></div>
-                    <div class="spinner-ring"></div>
+    <section class="section visible">
+        <div class="generate-container">
+            <!-- 进度步骤 -->
+            <div class="progress-steps">
+                <div class="progress-step completed" id="step1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">
+                        <span lang="zh">探索</span><span lang="en">Explore</span>
+                    </div>
                 </div>
-                <p class="loading-message" id="loadingMessage">
-                    <span lang="zh">AI正在理解你的想法……</span>
-                    <span lang="en">AI is understanding your ideas...</span>
-                </p>
+                <div class="progress-step completed" id="step2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">
+                        <span lang="zh">创作</span><span lang="en">Create</span>
+                    </div>
+                </div>
+                <div class="progress-step active" id="step3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">
+                        <span lang="zh">生成</span><span lang="en">Generate</span>
+                    </div>
+                </div>
+                <div class="progress-step" id="step4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">
+                        <span lang="zh">分享</span><span lang="en">Share</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="result-container" id="resultContainer">
-                <div class="result-preview" id="resultPreview">
-                    <span class="placeholder">🏛️</span>
+            <!-- 加载状态 -->
+            <div class="loading-state" id="loadingState">
+                <div class="loading-animation">
+                    <div class="loading-ring"></div>
+                    <div class="loading-ring"></div>
                 </div>
-                <p class="result-text" id="resultText">
-                    <span lang="zh">你提到希望这里能有更多遮阴和停留的地方。我保留了原有的开放视野，在东侧加入了一组轻质廊架结构，搭配低矮的种植箱，让这个角落在午后变成可以安静坐下来的地方。</span>
-                    <span lang="en">You mentioned wanting more shade and seating areas here. I preserved the existing open view and added a lightweight pergola structure on the east side, paired with low planting boxes, making this corner a quiet place to sit in the afternoon.</span>
+                <div class="loading-text" id="loadingText">
+                    <span lang="zh">AI 正在生成设计方案...</span><span lang="en">AI is generating design方案...</span>
+                </div>
+                <div class="loading-subtext" id="loadingSubtext">
+                    <span lang="zh">这可能需要几秒钟时间</span><span lang="en">This may take a few seconds</span>
+                </div>
+            </div>
+
+            <!-- 图片选择区域 -->
+            <div class="images-selection" id="imagesSelection">
+                <h2 class="selection-title">
+                    <span lang="zh">选择你喜欢的设计方案</span><span lang="en">Choose Your Favorite Design</span>
+                </h2>
+                <p class="selection-subtitle">
+                    <span lang="zh">点击图片选择，或点击按钮重新生成</span><span lang="en">Click to select, or regenerate for more options</span>
                 </p>
-                <div class="result-actions">
-                    <button class="action-btn" id="reviseBtn">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M8 3L12 7L8 11M4 7H12" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 9V11C12 12.1 11.1 13 10 13H6C4.9 13 4 12.1 4 11V9" stroke-linecap="round"/>
+
+                <!-- 设计说明 -->
+                <div class="design-summary" id="designSummary">
+                    <div class="summary-header">
+                        <div class="summary-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="summary-title">
+                            <span lang="zh">AI 设计说明</span><span lang="en">AI Design Summary</span>
+                        </div>
+                    </div>
+                    <div class="summary-content" id="summaryContent"></div>
+                </div>
+
+                <!-- 图片网格 -->
+                <div class="images-grid" id="imagesGrid">
+                    <div class="image-card" id="imageCard1" data-index="1">
+                        <div class="image-wrapper" id="imageWrapper1">
+                            <img id="generatedImage1" src="" alt="Generated Design 1" style="display: none;">
+                            <div class="placeholder" id="placeholder1">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                                <div>
+                                    <span lang="zh">AI正在生成中...</span><span lang="en">AI is generating...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="image-number">1</div>
+                        <div class="image-info">
+                            <div class="image-title">
+                                <span lang="zh">设计方案一</span><span lang="en">Design Option 1</span>
+                            </div>
+                            <div class="image-desc">
+                                <span lang="zh">现代简约风格，强调功能性</span><span lang="en">Modern minimalist style, emphasis on functionality</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="image-card" id="imageCard2" data-index="2">
+                        <div class="image-wrapper" id="imageWrapper2">
+                            <img id="generatedImage2" src="" alt="Generated Design 2" style="display: none;">
+                            <div class="placeholder" id="placeholder2">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                                <div>
+                                    <span lang="zh">AI正在生成中...</span><span lang="en">AI is generating...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="image-number">2</div>
+                        <div class="image-info">
+                            <div class="image-title">
+                                <span lang="zh">设计方案二</span><span lang="en">Design Option 2</span>
+                            </div>
+                            <div class="image-desc">
+                                <span lang="zh">自然有机风格，融入环境</span><span lang="en">Natural organic style, blends with environment</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="action-btn secondary" id="regenerateBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                         </svg>
-                        <span lang="zh">重新调整想法</span><span lang="en">Revise Ideas</span>
+                        <span lang="zh">重新生成</span><span lang="en">Regenerate</span>
                     </button>
-                    <button class="action-btn" id="shareBtn">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M8 3C8 3 3 5 3 8C3 11 8 13 8 13C8 13 13 11 13 8C13 5 8 3 8 3Z" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="8" cy="8" r="2" fill="currentColor"/>
+                    <button class="action-btn primary" id="confirmBtn" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
                         </svg>
-                        <span lang="zh">分享这个设计</span><span lang="en">Share Design</span>
+                        <span lang="zh">确认选择</span><span lang="en">Confirm Selection</span>
                     </button>
-                    <a href="gallery.html" class="action-btn primary" id="continueExploreBtn">
-                        <span lang="zh">继续探索</span>
-                        <span lang="en">Continue Exploring</span>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M6 3L11 8L6 13" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </a>
+                </div>
+
+                <!-- 分享区域 -->
+                <div class="share-section" id="shareSection">
+                    <h3 class="share-title">
+                        <span lang="zh">分享你的设计</span><span lang="en">Share Your Design</span>
+                    </h3>
+                    <div class="share-options">
+                        <button class="share-btn" id="copyLinkBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                            </svg>
+                            <span lang="zh">复制链接</span><span lang="en">Copy Link</span>
+                        </button>
+                        <button class="share-btn" id="uploadGalleryBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 20v-6M6 20V10M18 20V4"/>
+                            </svg>
+                            <span lang="zh">上传到社区</span><span lang="en">Upload to Gallery</span>
+                        </button>
+                        <a href="gallery.html" class="share-btn" id="viewGalleryBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <path d="M21 15l-5-5L5 21"/>
+                            </svg>
+                            <span lang="zh">查看社区</span><span lang="en">View Gallery</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -111,7 +620,51 @@
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
     <script>
-        // Language Switcher
+        // 模拟生成的图片数据
+        const MOCK_IMAGES = [
+            {
+                url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
+                title: { zh: '现代简约风格', en: 'Modern Minimalist' },
+                desc: { zh: '简洁的线条与功能性的完美结合，打造高效学习空间', en: 'Perfect combination of clean lines and functionality for efficient study space' }
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop',
+                title: { zh: '自然有机风格', en: 'Natural Organic' },
+                desc: { zh: '融入自然元素，创造舒适宜人的学习环境', en: 'Integrating natural elements to create a comfortable learning environment' }
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=800&h=600&fit=crop',
+                title: { zh: '未来科技风格', en: 'Futuristic Tech' },
+                desc: { zh: '科技感十足的设计，激发创新思维', en: 'Tech-inspired design that sparks innovative thinking' }
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
+                title: { zh: '温馨北欧风格', en: 'Cozy Nordic' },
+                desc: { zh: '温暖的色调与舒适的布局，营造家一般的温馨', en: 'Warm colors and comfortable layout create a home-like coziness' }
+            }
+        ];
+
+        // 当前状态
+        let currentImageSet = [0, 1];
+        let selectedImageIndex = null;
+        let userChoices = null;
+        let designId = null;
+
+        // DOM 元素
+        const loadingState = document.getElementById('loadingState');
+        const loadingText = document.getElementById('loadingText');
+        const loadingSubtext = document.getElementById('loadingSubtext');
+        const imagesSelection = document.getElementById('imagesSelection');
+        const generatedImage1 = document.getElementById('generatedImage1');
+        const generatedImage2 = document.getElementById('generatedImage2');
+        const imageCard1 = document.getElementById('imageCard1');
+        const imageCard2 = document.getElementById('imageCard2');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const regenerateBtn = document.getElementById('regenerateBtn');
+        const shareSection = document.getElementById('shareSection');
+        const summaryContent = document.getElementById('summaryContent');
+
+        // 语言切换
         const langSwitcher = document.getElementById('langSwitcher');
 
         function updateLanguageDisplay() {
@@ -133,8 +686,6 @@
             }
         }
 
-        updateLanguageDisplay();
-
         langSwitcher.addEventListener('click', (e) => {
             const clickedSpan = e.target.closest('[lang]');
             if (clickedSpan) {
@@ -152,135 +703,169 @@
             }, 150);
         });
 
-        // 轮询生成状态，展示真实结果
-        const POLL_INTERVAL = 2000; // 2 秒轮询一次
-        const MAX_POLL_ATTEMPTS = 60; // 最多轮询 60 次（2 分钟）
-        let pollCount = 0;
+        // 加载用户选择
+        function loadUserChoices() {
+            userChoices = getState('userChoices');
+            designId = getState('designId');
 
-        async function pollDesignStatus() {
-            const designId = getState('designId');
-            if (!designId) {
-                // 没有 designId，回退到模拟模式
-                showFallbackLoading();
-                return;
+            if (!userChoices) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请先完成创作选择' : 'Please complete creation choices first',
+                    'warning'
+                );
+                setTimeout(() => {
+                    window.location.href = 'create.html';
+                }, 1500);
+                return false;
             }
 
-            const loadingMsg = document.getElementById('loadingMessage');
-            const statusMessages = APP_STATE.language === 'zh' ? [
-                'AI正在理解你的想法……',
-                '正在分析这个空间的光线与尺度……',
-                '正在把你的感受转化为空间语言……',
-                '你的校园，正在生长中……'
-            ] : [
-                'AI is understanding your ideas...',
-                'Analyzing the lighting and scale of this space...',
-                'Translating your feelings into spatial language...',
-                'Your campus is growing...'
-            ];
-
-            const poll = async () => {
-                pollCount++;
-                if (pollCount > MAX_POLL_ATTEMPTS) {
-                    loadingMsg.innerHTML = APP_STATE.language === 'zh'
-                        ? '<span lang="zh">生成超时，请稍后查看</span><span lang="en">Generation timed out, please check later</span>';
-                    return;
-                }
-
-                // 更新加载提示文字
-                const msgIndex = Math.min(pollCount - 1, statusMessages.length - 1);
-                loadingMsg.innerHTML = `<span lang="${APP_STATE.language}">${statusMessages[msgIndex]}</span>`;
-
-                try {
-                    const res = await API.getDesignStatus(designId);
-                    const status = res.data.status;
-
-                    if (status === 'completed') {
-                        // 生成完成 — 展示结果
-                        showResult(res.data);
-                        return;
-                    }
-                } catch (err) {
-                    console.error('轮询状态失败:', err);
-                }
-
-                // 继续轮询
-                setTimeout(poll, POLL_INTERVAL);
-            };
-
-            poll();
+            return true;
         }
 
-        function showResult(designData) {
-            const resultPreview = document.getElementById('resultPreview');
-            const resultText = document.getElementById('resultText');
-
-            // 如果有生成图片则展示
-            if (designData.generated_image && designData.generated_image !== '生成中...') {
-                const img = document.createElement('img');
-                img.src = designData.generated_image;
-                img.alt = 'Generated Design';
-                img.style.maxWidth = '100%';
-                img.style.borderRadius = '12px';
-                resultPreview.textContent = '';
-                resultPreview.appendChild(img);
+        // 显示设计说明
+        function showDesignSummary() {
+            const aiResponse = getState('aiResponse');
+            if (aiResponse) {
+                summaryContent.innerHTML = `<p>${aiResponse}</p>`;
             } else {
-                // agent_service 未实现时，显示 AI 文字响应
-                const aiResponse = getState('aiResponse') || '';
-                if (aiResponse && aiResponse !== 'AI正在分析您的创意，请稍候...') {
-                    resultText.querySelector('[lang="zh"]').textContent = aiResponse;
-                    resultText.querySelector('[lang="en"]').textContent = aiResponse;
-                }
+                const choices = Object.values(userChoices).map(c => c.title[APP_STATE.language]).join('、');
+                summaryContent.innerHTML = `<p>${APP_STATE.language === 'zh' ? `基于你的选择「${choices}」，我为你生成了两套设计方案。每套方案都结合了你的需求和空间特点，希望能给你带来惊喜。` : `Based on your choices "${choices}", I've generated two design方案 for you. Each combines your needs with spatial characteristics, hoping to surprise you.`}</p>`;
             }
-
-            if (designData.design_description) {
-                resultText.querySelector('[lang="zh"]').textContent = designData.design_description;
-                resultText.querySelector('[lang="en"]').textContent = designData.design_description;
-            }
-
-            document.getElementById('loadingContainer').style.display = 'none';
-            document.getElementById('resultContainer').classList.add('visible');
         }
 
-        // 无 designId 时的回退模拟模式
-        async function showFallbackLoading() {
-            const messages = APP_STATE.language === 'zh' ? [
-                'AI正在理解你的想法……',
-                '正在分析这个空间的光线与尺度……',
-                '正在把你的感受转化为空间语言……',
-                '你的校园，正在生长中……'
+        // 生成随机图片索引
+        function getRandomImageIndexes() {
+            const used = new Set(currentImageSet);
+            const available = MOCK_IMAGES.map((_, i) => i).filter(i => !used.has(i));
+
+            if (available.length < 2) {
+                // 如果所有图片都用过了，重置
+                return [Math.floor(Math.random() * MOCK_IMAGES.length), Math.floor(Math.random() * MOCK_IMAGES.length)];
+            }
+
+            // 随机选择两张不同的图片
+            const idx1 = available[Math.floor(Math.random() * available.length)];
+            const remaining = available.filter(i => i !== idx1);
+            const idx2 = remaining[Math.floor(Math.random() * remaining.length)];
+
+            return [idx1, idx2];
+        }
+
+        // 加载生成的图片
+        function loadGeneratedImages() {
+            const [idx1, idx2] = currentImageSet;
+            const img1 = MOCK_IMAGES[idx1];
+            const img2 = MOCK_IMAGES[idx2];
+
+            // 加载第一张图片
+            generatedImage1.src = img1.url;
+            generatedImage1.style.display = 'block';
+            document.getElementById('placeholder1').style.display = 'none';
+
+            // 加载第二张图片
+            generatedImage2.src = img2.url;
+            generatedImage2.style.display = 'block';
+            document.getElementById('placeholder2').style.display = 'none';
+
+            // 更新图片描述
+            document.querySelector('#imageCard1 .image-title').innerHTML =
+                `<span lang="zh">${img1.title.zh}</span><span lang="en">${img1.title.en}</span>`;
+            document.querySelector('#imageCard1 .image-desc').innerHTML =
+                `<span lang="zh">${img1.desc.zh}</span><span lang="en">${img1.desc.en}</span>`;
+
+            document.querySelector('#imageCard2 .image-title').innerHTML =
+                `<span lang="zh">${img2.title.zh}</span><span lang="en">${img2.title.en}</span>`;
+            document.querySelector('#imageCard2 .image-desc').innerHTML =
+                `<span lang="zh">${img2.desc.zh}</span><span lang="en">${img2.desc.en}</span>`;
+        }
+
+        // 重置图片到占位状态
+        function resetImagePlaceholders() {
+            generatedImage1.style.display = 'none';
+            generatedImage1.src = '';
+            document.getElementById('placeholder1').style.display = 'flex';
+
+            generatedImage2.style.display = 'none';
+            generatedImage2.src = '';
+            document.getElementById('placeholder2').style.display = 'flex';
+        }
+
+        // 图片选择处理
+        function selectImage(index) {
+            selectedImageIndex = index;
+
+            // 更新选中状态
+            imageCard1.classList.toggle('selected', index === 1);
+            imageCard2.classList.toggle('selected', index === 2);
+
+            // 启用确认按钮
+            confirmBtn.disabled = false;
+        }
+
+        // 重新生成
+        async function regenerateImages() {
+            // 显示加载状态
+            imagesSelection.classList.remove('visible');
+            loadingState.style.display = 'block';
+            selectedImageIndex = null;
+            confirmBtn.disabled = true;
+            shareSection.classList.remove('visible');
+
+            // 重置图片占位符
+            resetImagePlaceholders();
+
+            // 更新加载文字
+            const loadingMessages = APP_STATE.language === 'zh' ? [
+                'AI 正在重新生成设计方案...',
+                '正在调整设计参数...',
+                '正在优化视觉效果...',
+                '即将完成...'
             ] : [
-                'AI is understanding your ideas...',
-                'Analyzing the lighting and scale of this space...',
-                'Translating your feelings into spatial language...',
-                'Your campus is growing...'
+                'AI is regenerating designs...',
+                'Adjusting design parameters...',
+                'Optimizing visual effects...',
+                'Almost done...'
             ];
 
-            const loadingMsg = document.getElementById('loadingMessage');
-
-            for (let i = 0; i < messages.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 1800));
-                loadingMsg.style.animation = 'none';
-                loadingMsg.offsetHeight;
-                loadingMsg.style.animation = 'fade-up 0.5s ease';
-                loadingMsg.innerHTML = `<span lang="zh">${messages[i]}</span><span lang="en">${messages[i]}</span>`;
+            for (let i = 0; i < loadingMessages.length; i++) {
+                loadingText.innerHTML = `<span lang="${APP_STATE.language}">${loadingMessages[i]}</span>`;
+                await new Promise(resolve => setTimeout(resolve, 800));
             }
 
-            document.getElementById('loadingContainer').style.display = 'none';
-            document.getElementById('resultContainer').classList.add('visible');
+            // 生成新图片
+            currentImageSet = getRandomImageIndexes();
+
+            // 隐藏加载，显示选择
+            loadingState.style.display = 'none';
+            imagesSelection.classList.add('visible');
+            loadGeneratedImages();
         }
 
-        // 页面加载时开始轮询
-        pollDesignStatus();
+        // 确认选择
+        function confirmSelection() {
+            if (selectedImageIndex === null) return;
 
-        // Revise button
-        document.getElementById('reviseBtn').addEventListener('click', () => {
-            window.location.href = 'create.html';
-        });
+            const imageIdx = currentImageSet[selectedImageIndex - 1];
+            const selectedImage = MOCK_IMAGES[imageIdx];
 
-        // Share button
-        document.getElementById('shareBtn').addEventListener('click', async () => {
+            // 保存选择
+            setState('selectedImage', selectedImage);
+
+            Toast.show(
+                APP_STATE.language === 'zh' ? '正在生成最终展示...' : 'Creating final presentation...',
+                'success'
+            );
+
+            // 跳转到结果页面
+            setTimeout(() => {
+                window.location.href = 'result.html';
+            }, 1000);
+        }
+
+        // 分享功能
+        async function copyLink() {
             try {
-                const shareUrl = `${window.location.origin}`;
+                const shareUrl = `${window.location.origin}/generate.html?id=${designId || 'demo'}`;
                 await navigator.clipboard.writeText(shareUrl);
                 Toast.show(
                     APP_STATE.language === 'zh' ? '链接已复制到剪贴板' : 'Link copied to clipboard',
@@ -292,7 +877,93 @@
                     'error'
                 );
             }
-        });
+        }
+
+        async function uploadToGallery() {
+            const sessionId = getState('sessionId');
+            if (!sessionId) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请先开始探索' : 'Please start exploring first',
+                    'warning'
+                );
+                return;
+            }
+
+            try {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '正在上传...' : 'Uploading...',
+                    'info'
+                );
+
+                // 这里应该调用后端API上传到社区
+                // 暂时模拟成功
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '已上传到社区！' : 'Uploaded to gallery!',
+                    'success'
+                );
+
+                setTimeout(() => {
+                    window.location.href = 'gallery.html';
+                }, 1000);
+
+            } catch (error) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '上传失败，请重试' : 'Upload failed, please try again',
+                    'error'
+                );
+            }
+        }
+
+        // 事件绑定
+        imageCard1.addEventListener('click', () => selectImage(1));
+        imageCard2.addEventListener('click', () => selectImage(2));
+        regenerateBtn.addEventListener('click', regenerateImages);
+        confirmBtn.addEventListener('click', confirmSelection);
+        document.getElementById('copyLinkBtn').addEventListener('click', copyLink);
+        document.getElementById('uploadGalleryBtn').addEventListener('click', uploadToGallery);
+
+        // 初始化
+        async function init() {
+            updateLanguageDisplay();
+
+            if (!loadUserChoices()) {
+                return;
+            }
+
+            showDesignSummary();
+
+            // 模拟AI生成过程
+            const loadingMessages = APP_STATE.language === 'zh' ? [
+                'AI 正在分析你的选择...',
+                '正在生成设计草图...',
+                '正在渲染3D效果图...',
+                '正在优化细节...',
+                '即将完成...'
+            ] : [
+                'AI is analyzing your choices...',
+                'Generating design sketches...',
+                'Rendering 3D visualizations...',
+                'Optimizing details...',
+                'Almost done...'
+            ];
+
+            for (let i = 0; i < loadingMessages.length; i++) {
+                loadingText.innerHTML = `<span lang="${APP_STATE.language}">${loadingMessages[i]}</span>`;
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            // 隐藏加载，显示选择
+            loadingState.style.display = 'none';
+            imagesSelection.classList.add('visible');
+
+            // 加载生成的图片
+            loadGeneratedImages();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
