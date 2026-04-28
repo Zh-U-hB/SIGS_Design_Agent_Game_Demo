@@ -249,8 +249,8 @@
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
     <script>
-        // 用户提供的全景图
-        const USER_PANORAMA_URL = 'https://maas-log-prod.cn-wlcb.ufileos.com/anthropic/5e29abd0-1d07-4138-828c-e9b57463c7b1/e168cbe83477ca55f29d5fad23313b10.jpg?UCloudPublicKey=TOKEN_e15ba47a-d098-4fbd-9afc-a0dcf0e4e621&Expires=1777310075&Signature=fxhxyHTHqNIsXovm28hYUEzQFvs=';
+        // 用户提供的全景图（本地路径）
+        const USER_PANORAMA_URL = 'images/panoramas/campus-panorama.jpg';
 
         // 不同角度的画面（模拟上下左右导航）
         const PANORAMA_VIEWS = {
@@ -260,7 +260,7 @@
             },
             'top': {
                 name: { zh: '向北看 - 教学楼方向', en: 'Looking North - Academic Buildings' },
-                image: USER_PANORAMA_URL // 可以用不同的图
+                image: USER_PANORAMA_URL
             },
             'bottom': {
                 name: { zh: '向南看 - 生活区方向', en: 'Looking South - Living Area' },

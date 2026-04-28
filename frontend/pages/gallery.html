@@ -3,30 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区创意 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>社区创意 — 清华大学深圳国际研究生院 | Creative Community — Tsinghua SIGS</title>
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
     <style>
-        /* 社区容器 */
+        /* 语言切换样式 */
+        body.lang-en [lang="zh"] { display: none; }
+        body:not(.lang-en) [lang="en"] { display: none; }
+
+        body.lang-en [lang="zh"].lang-active,
+        body:not(.lang-en) [lang="en"].lang-active { display: inline; }
+
         .gallery-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
-        /* 统计数据 */
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .gallery-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #660874;
+            margin-bottom: 12px;
+        }
+
+        .gallery-subtitle {
+            font-size: 18px;
+            color: #666;
+        }
+
         .stats-bar {
             display: flex;
             justify-content: center;
             gap: 60px;
             margin-bottom: 40px;
-            flex-wrap: wrap;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         }
 
         .stat-item {
@@ -34,101 +56,29 @@
         }
 
         .stat-value {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
             color: #660874;
-            line-height: 1;
+            margin-bottom: 4px;
         }
 
         .stat-label {
             font-size: 14px;
             color: #666;
-            margin-top: 4px;
         }
 
-        /* 筛选区域 */
-        .filter-section {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .filter-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .filter-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            min-width: 60px;
-        }
-
-        .filter-chips {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .filter-chip {
-            padding: 8px 16px;
-            background: #f5f5f5;
-            border-radius: 20px;
-            font-size: 14px;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .filter-chip:hover {
-            background: #e0e0e0;
-        }
-
-        .filter-chip.selected {
-            background: rgba(102, 8, 116, 0.1);
-            color: #660874;
-            border-color: #660874;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #660874;
-        }
-
-        /* 图片网格 */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 24px;
+            margin-top: 32px;
         }
 
-        /* 设计卡片 */
         .design-card {
             background: white;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             cursor: pointer;
         }
@@ -139,10 +89,10 @@
         }
 
         .card-image {
+            position: relative;
             width: 100%;
             height: 240px;
             overflow: hidden;
-            position: relative;
         }
 
         .card-image img {
@@ -165,7 +115,7 @@
             padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .card-content {
@@ -173,17 +123,16 @@
         }
 
         .card-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: #333;
             margin-bottom: 8px;
-            line-height: 1.4;
         }
 
         .card-desc {
             font-size: 14px;
             color: #666;
-            line-height: 1.5;
+            line-height: 1.6;
             margin-bottom: 16px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -193,10 +142,8 @@
 
         .card-footer {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding-top: 16px;
-            border-top: 1px solid #e0e0e0;
+            align-items: center;
         }
 
         .card-author {
@@ -214,13 +161,13 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
             font-weight: 600;
+            font-size: 14px;
         }
 
         .author-name {
             font-size: 14px;
-            color: #333;
+            color: #666;
         }
 
         .card-stats {
@@ -232,8 +179,14 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 14px;
             color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .stat:hover {
+            transform: scale(1.1);
         }
 
         .stat svg {
@@ -241,184 +194,147 @@
             height: 18px;
         }
 
-        .stat.liked svg {
-            fill: #ff4757;
-            stroke: #ff4757;
+        .stat.liked {
+            color: #ff4757;
         }
 
-        /* 加载更多 */
-        .load-more {
+        .empty-state {
             text-align: center;
-            margin-top: 40px;
+            padding: 60px 20px;
+            color: #999;
         }
 
-        .load-more-btn {
-            padding: 14px 40px;
-            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+            opacity: 0.5;
         }
 
-        .load-more-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 8, 116, 0.4);
-        }
-
-        /* 详情弹窗 */
-        .modal-overlay {
+        /* 评论弹窗样式 */
+        .comment-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.6);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            padding: 20px;
+            backdrop-filter: blur(4px);
         }
 
-        .modal-overlay.visible {
+        .comment-modal-overlay.visible {
             display: flex;
         }
 
-        .modal-content {
+        .comment-modal {
             background: white;
             border-radius: 20px;
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
             overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .comment-modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
             display: flex;
-            flex-direction: column;
-        }
-
-        .modal-image {
-            width: 100%;
-            height: 400px;
-            overflow: hidden;
-        }
-
-        .modal-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .modal-body {
-            padding: 30px;
-            overflow-y: auto;
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        .modal-location {
-            display: inline-block;
-            background: rgba(102, 8, 116, 0.1);
-            color: #660874;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 20px;
-        }
-
-        .modal-desc {
-            font-size: 16px;
-            line-height: 1.6;
-            color: #666;
-            margin-bottom: 24px;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .modal-action-btn {
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 6px;
-            background: #f5f5f5;
-            border: none;
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            color: white;
         }
 
-        .modal-action-btn:hover {
-            background: #e0e0e0;
+        .comment-modal-title {
+            font-size: 20px;
+            font-weight: 600;
         }
 
-        .modal-action-btn.liked {
-            background: rgba(255, 71, 87, 0.1);
-            color: #ff4757;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.9);
+        .comment-modal-close {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-size: 24px;
-            color: #333;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
-        .modal-close:hover {
-            background: white;
+        .comment-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
             transform: scale(1.1);
         }
 
-        /* 评论区 */
-        .comments-section {
-            border-top: 1px solid #e0e0e0;
-            padding-top: 24px;
+        .comment-modal-body {
+            padding: 24px;
+            max-height: 500px;
+            overflow-y: auto;
         }
 
-        .comments-title {
-            font-size: 18px;
+        .comment-design-info {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .comment-design-title {
+            font-size: 16px;
             font-weight: 600;
             color: #333;
-            margin-bottom: 16px;
+            margin-bottom: 4px;
+        }
+
+        .comment-design-location {
+            font-size: 14px;
+            color: #666;
         }
 
         .comment-input-area {
-            display: flex;
-            gap: 12px;
             margin-bottom: 24px;
         }
 
-        .comment-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
+        .comment-input-label {
             font-size: 14px;
-            resize: none;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
             font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s ease;
+            box-sizing: border-box;
         }
 
         .comment-input:focus {
@@ -427,19 +343,37 @@
         }
 
         .comment-submit-btn {
-            padding: 12px 24px;
-            background: #660874;
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
             color: white;
             border: none;
+            padding: 12px 24px;
             border-radius: 10px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+            width: 100%;
         }
 
         .comment-submit-btn:hover {
-            background: #550863;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 8, 116, 0.3);
+        }
+
+        .comment-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .comments-list-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .comment-list {
@@ -451,19 +385,27 @@
         .comment-item {
             display: flex;
             gap: 12px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .comment-item:hover {
+            background: #f3f4f6;
         }
 
         .comment-avatar {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
             font-weight: 600;
+            font-size: 16px;
             flex-shrink: 0;
         }
 
@@ -473,15 +415,15 @@
 
         .comment-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
             margin-bottom: 4px;
         }
 
         .comment-author {
-            font-size: 14px;
             font-weight: 600;
             color: #333;
+            font-size: 14px;
         }
 
         .comment-time {
@@ -490,54 +432,36 @@
         }
 
         .comment-text {
-            font-size: 14px;
             color: #666;
+            font-size: 14px;
             line-height: 1.5;
+            word-break: break-word;
         }
 
-        /* 空状态 */
-        .empty-state {
+        .no-comments {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             color: #999;
+            font-size: 14px;
         }
 
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-
-        .empty-state-text {
-            font-size: 16px;
-        }
-
-        /* 响应式 */
+        /* 移动端适配 */
         @media (max-width: 768px) {
-            .stats-bar {
-                gap: 30px;
-            }
-
             .gallery-grid {
                 grid-template-columns: 1fr;
             }
 
-            .filter-row {
-                flex-direction: column;
-                align-items: flex-start;
+            .stats-bar {
+                gap: 30px;
             }
 
-            .filter-chips {
-                width: 100%;
+            .comment-modal {
+                width: 95%;
+                max-height: 90vh;
             }
 
-            .modal-content {
-                max-height: 95vh;
-            }
-
-            .modal-image {
-                height: 250px;
+            .comment-modal-body {
+                padding: 16px;
             }
         }
     </style>
@@ -580,163 +504,87 @@
 
     <section class="section visible">
         <div class="gallery-container">
-            <!-- 页面标题 -->
-            <div style="text-align: center; margin-bottom: 40px;">
-                <h1 class="explore-title">
+            <div class="gallery-header">
+                <h1 class="gallery-title">
                     <span lang="zh">清华SIGS创意社区</span>
                     <span lang="en">Tsinghua SIGS Creative Community</span>
                 </h1>
-                <p class="explore-desc">
+                <p class="gallery-subtitle">
                     <span lang="zh">探索校园设计的无限可能，分享你的创意灵感</span>
                     <span lang="en">Explore infinite possibilities of campus design, share your creative inspiration</span>
                 </p>
             </div>
 
-            <!-- 统计数据 -->
             <div class="stats-bar">
                 <div class="stat-item">
-                    <div class="stat-value" id="totalDesigns">128</div>
+                    <div class="stat-value" id="totalDesigns">0</div>
                     <div class="stat-label">
-                        <span lang="zh">个设计方案</span><span lang="en">Designs</span>
+                        <span lang="zh">设计方案</span><span lang="en">Designs</span>
                     </div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="totalLikes">1,234</div>
+                    <div class="stat-value" id="totalLikes">0</div>
                     <div class="stat-label">
-                        <span lang="zh">个点赞</span><span lang="en">Likes</span>
+                        <span lang="zh">点赞</span><span lang="en">Likes</span>
                     </div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="totalComments">456</div>
+                    <div class="stat-value" id="totalComments">0</div>
                     <div class="stat-label">
-                        <span lang="zh">条评论</span><span lang="en">Comments</span>
+                        <span lang="zh">评论</span><span lang="en">Comments</span>
                     </div>
                 </div>
             </div>
 
-        <div class="gallery-map-wrapper">
-            <!-- Filter Section -->
-            <div class="gallery-filter-section">
-                <!-- Search -->
-                <div class="input-group">
-                    <input type="text" id="searchInput" class="search-input" placeholder="搜索设计（关键词、位置、情绪）">
-                </div>
-                <div class="filter-row">
-                    <div class="filter-label">
-                        <span lang="zh">位置</span><span lang="en">Location</span>
-                    </div>
-                    <div class="filter-chips" id="locationFilters">
-                        <span class="filter-chip selected" data-filter="all">
-                            <span lang="zh">全部</span><span lang="en">All</span>
-                        </span>
-                        <span class="filter-chip" data-filter="图书馆">
-                            <span lang="zh">图书馆</span><span lang="en">Library</span>
-                        </span>
-                        <span class="filter-chip" data-filter="信息楼">
-                            <span lang="zh">信息楼</span><span lang="en">Info Building</span>
-                        </span>
-                        <span class="filter-chip" data-filter="能源楼">
-                            <span lang="zh">能源楼</span><span lang="en">Energy Building</span>
-                        </span>
-                        <span class="filter-chip" data-filter="国际中心">
-                            <span lang="zh">国际中心</span><span lang="en">International Center</span>
-                        </span>
-                        <span class="filter-chip" data-filter="学生活动中心">
-                            <span lang="zh">学生活动中心</span><span lang="en">Activity Center</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="filter-row">
-                    <div class="filter-label">
-                        <span lang="zh">排序</span><span lang="en">Sort</span>
-                    </div>
-                    <div class="filter-chips" id="sortFilters">
-                        <span class="filter-chip selected" data-sort="newest">
-                            <span lang="zh">最新</span><span lang="en">Newest</span>
-                        </span>
-                        <span class="filter-chip" data-sort="popular">
-                            <span lang="zh">最受欢迎</span><span lang="en">Most Popular</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 图片网格 -->
             <div class="gallery-grid" id="galleryGrid"></div>
-
-            <!-- 空状态 -->
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <path d="M21 15l-5-5L5 21"/>
-                </svg>
-                <div class="empty-state-text">
-                    <span lang="zh">暂无设计方案</span><span lang="en">No designs yet</span>
-                </div>
-            </div>
-
-            <!-- 加载更多 -->
-            <div class="load-more" id="loadMoreSection">
-                <button class="load-more-btn" id="loadMoreBtn">
-                    <span lang="zh">加载更多</span><span lang="en">Load More</span>
-                </button>
-            </div>
         </div>
     </section>
 
-    <!-- 详情弹窗 -->
-    <div class="modal-overlay" id="detailModal">
-        <div class="modal-close" id="modalClose">×</div>
-        <div class="modal-content">
-            <div class="modal-image">
-                <img id="modalImage" src="" alt="Design">
+    <!-- 评论弹窗 -->
+    <div class="comment-modal-overlay" id="commentModal">
+        <div class="comment-modal">
+            <div class="comment-modal-header">
+                <div class="comment-modal-title">
+                    <span lang="zh">评论</span>
+                    <span lang="en">Comments</span>
+                </div>
+                <button class="comment-modal-close" id="commentModalClose">×</button>
             </div>
-            <div class="modal-body">
-                <span class="modal-location" id="modalLocation"></span>
-                <h2 class="modal-title" id="modalTitle"></h2>
-                <p class="modal-desc" id="modalDesc"></p>
+            <div class="comment-modal-body">
+                <div class="comment-design-info">
+                    <div class="comment-design-title" id="commentDesignTitle"></div>
+                    <div class="comment-design-location" id="commentDesignLocation"></div>
+                </div>
 
-                <div class="modal-actions">
-                    <button class="modal-action-btn" id="modalLikeBtn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                        <span id="modalLikeCount">0</span>
-                    </button>
-                    <button class="modal-action-btn" id="modalShareBtn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                            <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
-                        </svg>
-                        <span lang="zh">分享</span><span lang="en">Share</span>
+                <div class="comment-input-area">
+                    <label class="comment-input-label">
+                        <span lang="zh">发表你的评论</span>
+                        <span lang="en">Write your comment</span>
+                    </label>
+                    <textarea class="comment-input" id="commentInput"
+                        placeholder="分享你的想法..."
+                        data-placeholder-zh="分享你的想法..."
+                        data-placeholder-en="Share your thoughts..."></textarea>
+                    <button class="comment-submit-btn" id="commentSubmitBtn">
+                        <span lang="zh">发送评论</span>
+                        <span lang="en">Submit</span>
                     </button>
                 </div>
 
-                <!-- 评论区 -->
-                <div class="comments-section">
-                    <h3 class="comments-title">
-                        <span lang="zh">评论</span><span lang="en">Comments</span>
-                    </h3>
-                    <div class="comment-input-area">
-                        <textarea class="comment-input" id="commentInput" rows="2" placeholder="写下你的评论..."></textarea>
-                        <button class="comment-submit-btn" id="commentSubmitBtn">
-                            <span lang="zh">发送</span><span lang="en">Send</span>
-                        </button>
-                    </div>
-                    <div class="comment-list" id="commentList"></div>
+                <div class="comments-list-title">
+                    <span lang="zh">全部评论</span>
+                    <span lang="en">All Comments</span>
+                    <span id="commentCount">(0)</span>
                 </div>
+                <div class="comment-list" id="commentList"></div>
             </div>
         </div>
     </div>
 
     <script src="../js/config.js"></script>
-    <script src="../js/api.js"></script>
-    <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
-    <script src="../js/router.js"></script>
     <script>
-        // 模拟设计数据
+        // 示例设计数据
         const MOCK_DESIGNS = [
             {
                 id: '1',
@@ -749,8 +597,7 @@
                 comments: [
                     { author: '李同学', content: '这个设计很棒！', time: '2小时前' },
                     { author: '王老师', content: '很有创意的想法。', time: '5小时前' }
-                ],
-                createdAt: new Date('2024-01-15')
+                ]
             },
             {
                 id: '2',
@@ -762,8 +609,7 @@
                 likes: 38,
                 comments: [
                     { author: '赵同学', content: '太需要这个了！', time: '1天前' }
-                ],
-                createdAt: new Date('2024-01-14')
+                ]
             },
             {
                 id: '3',
@@ -773,8 +619,7 @@
                 image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=600&fit=crop',
                 author: '王同学',
                 likes: 56,
-                comments: [],
-                createdAt: new Date('2024-01-13')
+                comments: []
             },
             {
                 id: '4',
@@ -785,10 +630,8 @@
                 author: '刘同学',
                 likes: 42,
                 comments: [
-                    { author: '陈同学', content: '很有意义的设计！', time: '3小时前' },
-                    { author: '留学生A', content: 'Great idea!', time: '6小时前' }
-                ],
-                createdAt: new Date('2024-01-12')
+                    { author: '陈同学', content: '很有意义的设计！', time: '3小时前' }
+                ]
             },
             {
                 id: '5',
@@ -800,8 +643,7 @@
                 likes: 67,
                 comments: [
                     { author: '学生会', content: '支持！', time: '1天前' }
-                ],
-                createdAt: new Date('2024-01-11')
+                ]
             },
             {
                 id: '6',
@@ -811,30 +653,30 @@
                 image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
                 author: '赵同学',
                 likes: 51,
-                comments: [],
-                createdAt: new Date('2024-01-10')
+                comments: []
             }
         ];
 
         // 当前状态
-        let currentFilter = 'all';
-        let currentSort = 'newest';
-        let filteredDesigns = [...MOCK_DESIGNS];
-        let currentDesign = null;
         let likedDesigns = new Set();
+        let currentLanguage = localStorage.getItem('lang') || 'zh';
 
         // DOM 元素
         const galleryGrid = document.getElementById('galleryGrid');
-        const emptyState = document.getElementById('emptyState');
-        const detailModal = document.getElementById('detailModal');
-        const modalClose = document.getElementById('modalClose');
-        const searchInput = document.getElementById('searchInput');
-
-        // 语言切换
         const langSwitcher = document.getElementById('langSwitcher');
 
+        // 更新评论输入框占位符
+        function updateCommentInputPlaceholder() {
+            if (commentInput) {
+                const zhPlaceholder = commentInput.getAttribute('data-placeholder-zh');
+                const enPlaceholder = commentInput.getAttribute('data-placeholder-en');
+                commentInput.placeholder = currentLanguage === 'zh' ? zhPlaceholder : enPlaceholder;
+            }
+        }
+
+        // 更新语言显示
         function updateLanguageDisplay() {
-            if (APP_STATE.language === 'en') {
+            if (currentLanguage === 'en') {
                 document.body.classList.add('lang-en');
             } else {
                 document.body.classList.remove('lang-en');
@@ -843,26 +685,29 @@
             const zhSpan = langSwitcher.querySelector('[lang="zh"]');
             const enSpan = langSwitcher.querySelector('[lang="en"]');
 
-            if (APP_STATE.language === 'zh') {
+            if (currentLanguage === 'zh') {
                 zhSpan.classList.add('lang-active');
                 enSpan.classList.remove('lang-active');
             } else {
                 enSpan.classList.add('lang-active');
                 zhSpan.classList.remove('lang-active');
             }
+
+            // 更新评论输入框占位符
+            updateCommentInputPlaceholder();
         }
 
+        // 语言切换事件
         langSwitcher.addEventListener('click', (e) => {
             const clickedSpan = e.target.closest('[lang]');
             if (clickedSpan) {
                 const clickedLang = clickedSpan.getAttribute('lang');
-                if (clickedLang === APP_STATE.language) return;
+                if (clickedLang === currentLanguage) return;
             }
 
-            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
-            localStorage.setItem('lang', APP_STATE.language);
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', currentLanguage);
             updateLanguageDisplay();
-            renderGallery();
 
             document.body.style.opacity = '0.8';
             setTimeout(() => {
@@ -872,16 +717,11 @@
 
         // 渲染设计卡片
         function renderGallery() {
+            console.log('开始渲染，共', MOCK_DESIGNS.length, '个设计');
+
             galleryGrid.innerHTML = '';
 
-            if (filteredDesigns.length === 0) {
-                emptyState.style.display = 'block';
-                return;
-            }
-
-            emptyState.style.display = 'none';
-
-            filteredDesigns.forEach(design => {
+            MOCK_DESIGNS.forEach(design => {
                 const card = document.createElement('div');
                 card.className = 'design-card';
                 card.innerHTML = `
@@ -898,13 +738,13 @@
                                 <span class="author-name">${design.author}</span>
                             </div>
                             <div class="card-stats">
-                                <div class="stat ${likedDesigns.has(design.id) ? 'liked' : ''}" data-design-id="${design.id}">
+                                <div class="stat ${likedDesigns.has(design.id) ? 'liked' : ''}" onclick="toggleLike('${design.id}', event)">
                                     <svg viewBox="0 0 24 24" fill="${likedDesigns.has(design.id) ? '#ff4757' : 'none'}" stroke="${likedDesigns.has(design.id) ? '#ff4757' : 'currentColor'}" stroke-width="2">
                                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                                     </svg>
                                     <span>${design.likes}</span>
                                 </div>
-                                <div class="stat">
+                                <div class="stat" onclick="openCommentModal('${design.id}', event)">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
                                     </svg>
@@ -915,21 +755,6 @@
                     </div>
                 `;
 
-                card.addEventListener('click', (e) => {
-                    if (!e.target.closest('.stat')) {
-                        openDetailModal(design);
-                    }
-                });
-
-                // 点赞事件
-                const likeBtn = card.querySelector('.stat[data-design-id]');
-                if (likeBtn) {
-                    likeBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        toggleLike(design.id);
-                    });
-                }
-
                 galleryGrid.appendChild(card);
             });
 
@@ -937,72 +762,122 @@
             document.getElementById('totalDesigns').textContent = MOCK_DESIGNS.length;
             document.getElementById('totalLikes').textContent = MOCK_DESIGNS.reduce((sum, d) => sum + d.likes, 0);
             document.getElementById('totalComments').textContent = MOCK_DESIGNS.reduce((sum, d) => sum + d.comments.length, 0);
+
+            console.log('渲染完成，共', galleryGrid.children.length, '个卡片');
         }
 
-        // 打开详情弹窗
-        function openDetailModal(design) {
-            currentDesign = design;
+        // 评论弹窗相关
+        let currentDesignId = null;
+        const commentModal = document.getElementById('commentModal');
+        const commentModalClose = document.getElementById('commentModalClose');
+        const commentSubmitBtn = document.getElementById('commentSubmitBtn');
+        const commentInput = document.getElementById('commentInput');
+        const commentList = document.getElementById('commentList');
+        const commentCount = document.getElementById('commentCount');
+        const commentDesignTitle = document.getElementById('commentDesignTitle');
+        const commentDesignLocation = document.getElementById('commentDesignLocation');
 
-            document.getElementById('modalImage').src = design.image;
-            document.getElementById('modalLocation').textContent = design.location;
-            document.getElementById('modalTitle').textContent = design.title;
-            document.getElementById('modalDesc').textContent = design.desc;
-            document.getElementById('modalLikeCount').textContent = design.likes;
+        // 打开评论弹窗
+        function openCommentModal(designId, event) {
+            if (event) event.stopPropagation();
 
-            // 更新点赞按钮状态
-            const likeBtn = document.getElementById('modalLikeBtn');
-            if (likedDesigns.has(design.id)) {
-                likeBtn.classList.add('liked');
-            } else {
-                likeBtn.classList.remove('liked');
-            }
+            const design = MOCK_DESIGNS.find(d => d.id === designId);
+            if (!design) return;
 
-            // 渲染评论
+            currentDesignId = designId;
+            commentDesignTitle.textContent = design.title;
+            commentDesignLocation.textContent = design.location;
+
             renderComments(design.comments);
+            updateCommentInputPlaceholder();
 
-            detailModal.classList.add('visible');
+            commentModal.classList.add('visible');
+        }
+
+        // 关闭评论弹窗
+        function closeCommentModal() {
+            commentModal.classList.remove('visible');
+            currentDesignId = null;
+            commentInput.value = '';
         }
 
         // 渲染评论列表
         function renderComments(comments) {
-            const commentList = document.getElementById('commentList');
-            commentList.innerHTML = '';
+            commentCount.textContent = `(${comments.length})`;
 
-            if (comments.length === 0) {
-                commentList.innerHTML = '<p style="color: #999; font-size: 14px;"><span lang="zh">暂无评论，快来抢沙发吧！</span><span lang="en">No comments yet, be the first!</span></p>';
+            if (!comments || comments.length === 0) {
+                commentList.innerHTML = `
+                    <div class="no-comments">
+                        <span lang="zh">暂无评论，快来抢沙发吧！</span>
+                        <span lang="en">No comments yet, be the first!</span>
+                    </div>
+                `;
                 return;
             }
 
-            comments.forEach(comment => {
-                const commentItem = document.createElement('div');
-                commentItem.className = 'comment-item';
-                commentItem.innerHTML = `
+            commentList.innerHTML = comments.map(comment => `
+                <div class="comment-item">
                     <div class="comment-avatar">${comment.author.charAt(0)}</div>
                     <div class="comment-content">
                         <div class="comment-header">
                             <span class="comment-author">${comment.author}</span>
                             <span class="comment-time">${comment.time}</span>
                         </div>
-                        <p class="comment-text">${comment.content}</p>
+                        <div class="comment-text">${comment.content}</div>
                     </div>
-                `;
-                commentList.appendChild(commentItem);
-            });
+                </div>
+            `).join('');
         }
 
-        // 关闭弹窗
-        modalClose.addEventListener('click', () => {
-            detailModal.classList.remove('visible');
-        });
+        // 提交评论
+        function submitComment() {
+            const content = commentInput.value.trim();
 
-        detailModal.addEventListener('click', (e) => {
-            if (e.target === detailModal) {
-                detailModal.classList.remove('visible');
+            if (!content) {
+                Toast.show(
+                    currentLanguage === 'zh' ? '请输入评论内容' : 'Please enter comment',
+                    'warning'
+                );
+                return;
+            }
+
+            const design = MOCK_DESIGNS.find(d => d.id === currentDesignId);
+            if (!design) return;
+
+            // 添加新评论
+            const newComment = {
+                author: '我',
+                content: content,
+                time: currentLanguage === 'zh' ? '刚刚' : 'Just now'
+            };
+
+            design.comments.unshift(newComment);
+            commentInput.value = '';
+
+            // 重新渲染
+            renderComments(design.comments);
+            renderGallery();
+
+            Toast.show(
+                currentLanguage === 'zh' ? '评论已发布' : 'Comment published',
+                'success'
+            );
+        }
+
+        // 事件监听
+        commentModalClose.addEventListener('click', closeCommentModal);
+
+        commentModal.addEventListener('click', (e) => {
+            if (e.target === commentModal) {
+                closeCommentModal();
             }
         });
 
+        commentSubmitBtn.addEventListener('click', submitComment);
+
         // 点赞功能
-        function toggleLike(designId) {
+        function toggleLike(designId, event) {
+            event.stopPropagation();
             const design = MOCK_DESIGNS.find(d => d.id === designId);
             if (!design) return;
 
@@ -1012,164 +887,21 @@
             } else {
                 likedDesigns.add(designId);
                 design.likes++;
-            }
-
-            renderGallery();
-
-            // 如果弹窗打开，更新弹窗中的点赞数
-            if (currentDesign && currentDesign.id === designId) {
-                document.getElementById('modalLikeCount').textContent = design.likes;
-                const likeBtn = document.getElementById('modalLikeBtn');
-                if (likedDesigns.has(designId)) {
-                    likeBtn.classList.add('liked');
-                } else {
-                    likeBtn.classList.remove('liked');
-                }
-            }
-        }
-
-        // 弹窗中的点赞按钮
-        document.getElementById('modalLikeBtn').addEventListener('click', () => {
-            if (currentDesign) {
-                toggleLike(currentDesign.id);
-            }
-        });
-
-        // 分享功能
-        document.getElementById('modalShareBtn').addEventListener('click', async () => {
-            try {
-                const shareUrl = `${window.location.origin}/gallery.html?id=${currentDesign.id}`;
-                await navigator.clipboard.writeText(shareUrl);
                 Toast.show(
-                    APP_STATE.language === 'zh' ? '链接已复制到剪贴板' : 'Link copied to clipboard',
+                    currentLanguage === 'zh' ? '已点赞' : 'Liked!',
                     'success'
                 );
-            } catch (error) {
-                Toast.show(
-                    APP_STATE.language === 'zh' ? '复制失败' : 'Copy failed',
-                    'error'
-                );
-            }
-        });
-
-        // 提交评论
-        document.getElementById('commentSubmitBtn').addEventListener('click', () => {
-            const commentInput = document.getElementById('commentInput');
-            const content = commentInput.value.trim();
-
-            if (!content) {
-                Toast.show(
-                    APP_STATE.language === 'zh' ? '请输入评论内容' : 'Please enter comment',
-                    'warning'
-                );
-                return;
-            }
-                Toast.show(
-                    APP_STATE.language === 'zh' ? '请输入评论内容' : 'Please enter comment',
-                    'warning'
-                );
-                return;
-            }
-
-            if (!currentDesign) return;
-
-            // 添加新评论
-            const newComment = {
-                author: '我',
-                content: content,
-                time: APP_STATE.language === 'zh' ? '刚刚' : 'Just now'
-            };
-
-            currentDesign.comments.unshift(newComment);
-            commentInput.value = '';
-
-            // 重新渲染评论和网格
-            renderComments(currentDesign.comments);
-            renderGallery();
-
-            Toast.show(
-                APP_STATE.language === 'zh' ? '评论已发布' : 'Comment published',
-                'success'
-            );
-
-        // 筛选功能
-        document.querySelectorAll('#locationFilters .filter-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                document.querySelectorAll('#locationFilters .filter-chip').forEach(c => c.classList.remove('selected'));
-                chip.classList.add('selected');
-
-                currentFilter = chip.dataset.filter;
-                applyFilters();
-            });
-        });
-
-        document.querySelectorAll('#sortFilters .filter-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                document.querySelectorAll('#sortFilters .filter-chip').forEach(c => c.classList.remove('selected'));
-                chip.classList.add('selected');
-
-                currentSort = chip.dataset.sort;
-                applyFilters();
-            });
-        });
-
-        // 搜索功能
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            applyFilters(searchTerm);
-        });
-
-        // 应用筛选
-        function applyFilters(searchTerm = '') {
-            filteredDesigns = MOCK_DESIGNS.filter(design => {
-                const matchFilter = currentFilter === 'all' || design.location === currentFilter;
-                const matchSearch = !searchTerm ||
-                    design.title.toLowerCase().includes(searchTerm) ||
-                    design.desc.toLowerCase().includes(searchTerm);
-                return matchFilter && matchSearch;
-            });
-
-            // 排序
-            if (currentSort === 'newest') {
-                filteredDesigns.sort((a, b) => b.createdAt - a.createdAt);
-            } else if (currentSort === 'popular') {
-                filteredDesigns.sort((a, b) => b.likes - a.likes);
             }
 
             renderGallery();
         }
-
-        // 加载更多（模拟）
-        document.getElementById('loadMoreBtn').addEventListener('click', () => {
-            Toast.show(
-                APP_STATE.language === 'zh' ? '没有更多内容了' : 'No more content',
-                'info'
-            );
-        });
 
         // 初始化
-        function init() {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('页面加载完成，开始初始化');
             updateLanguageDisplay();
             renderGallery();
-
-            // 确保 session 存在
-            (async () => {
-                let sessionId = getState('sessionId');
-                if (!sessionId) {
-                    try {
-                        const res = await API.createSession();
-                        sessionId = res.data.session_id;
-                        setState('sessionId', sessionId);
-                        APP_STATE.sessionId = sessionId;
-                    } catch (err) {
-                        console.error('创建会话失败:', err);
-                    }
-                }
-            })();
-        }
-
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', init);
+        });
     </script>
 </body>
 </html>
