@@ -57,7 +57,7 @@ async def submit_input(db: AsyncSession, request: DesignInputRequest) -> dict:
 
 
 async def confirm_design(db: AsyncSession, request: DesignConfirmRequest) -> dict:
-    """确认设计说明并触发图生图生成"""
+    """确认设计说明并触发图生图生成（生成多张图片供选择）"""
     user = await get_session(db, request.session_id)
     if not user:
         return {
@@ -76,28 +76,35 @@ async def confirm_design(db: AsyncSession, request: DesignConfirmRequest) -> dic
 
     design.design_description = request.design_description
 
-    image_result = await generate_image(
-        design_id=str(design.id),
-        design_description=design.design_description,
-        original_screenshot=design.original_screenshot
-    )
-
-    if image_result["success"]:
-        design.generated_image = image_result.get("image_url", "生成中...")
-        # 发起 3D 转换并存储 task_id
-        conversion_result = await convert_to_3d(
-            image_url=design.generated_image,
-            design_id=str(design.id)
+    # 生成多张图片（模拟生成2张）
+    generated_images = []
+    for i in range(2):
+        image_result = await generate_image(
+            design_id=f"{str(design.id)}_{i}",
+            design_description=design.design_description,
+            original_screenshot=design.original_screenshot
         )
-        if conversion_result["success"]:
-            design.model_3d_url = conversion_result.get("model_url", "生成中...")
-        else:
-            design.model_3d_url = None
-        status = "processing"
+        if image_result["success"]:
+            generated_images.append({
+                "index": i + 1,
+                "url": image_result.get("image_url", "生成中..."),
+                "description": f"设计方案 {i + 1}"
+            })
+
+    design.generated_images = generated_images
+    design.generated_image = generated_images[0]["url"] if generated_images else "图片生成失败"
+
+    # 发起 3D 转换并存储 task_id
+    conversion_result = await convert_to_3d(
+        image_url=design.generated_image,
+        design_id=str(design.id)
+    )
+    if conversion_result["success"]:
+        design.model_3d_url = conversion_result.get("model_url", "生成中...")
     else:
-        design.generated_image = "图片生成失败"
         design.model_3d_url = None
-        status = "failed"
+
+    status = "completed" if generated_images else "failed"
 
     await db.commit()
     await db.refresh(design)
@@ -105,6 +112,7 @@ async def confirm_design(db: AsyncSession, request: DesignConfirmRequest) -> dic
     return {
         "id": str(design.id),
         "design_description": design.design_description,
+        "generated_images": generated_images,
         "generated_image": design.generated_image,
         "model_3d_url": design.model_3d_url,
         "status": status

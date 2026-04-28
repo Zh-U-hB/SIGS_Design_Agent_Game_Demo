@@ -36,10 +36,13 @@ class Design(Base):
     user_input: Mapped[str | None] = mapped_column(Text, nullable=True)
     design_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     original_screenshot: Mapped[str | None] = mapped_column(String, nullable=True)
-    generated_image: Mapped[str | None] = mapped_column(String, nullable=True)
+    generated_images: Mapped[dict | None] = mapped_column(JSONB, nullable=True)  # 存储多张生成的图片
+    selected_image: Mapped[str | None] = mapped_column(String, nullable=True)  # 用户选择的图片
     model_3d_url: Mapped[str | None] = mapped_column(String, nullable=True)
     ai_response: Mapped[str | None] = mapped_column(Text, nullable=True)
     likes_count: Mapped[int] = mapped_column(Integer, default=0)
+    comments_count: Mapped[int] = mapped_column(Integer, default=0)
+    is_public: Mapped[bool] = mapped_column(Integer, default=0)  # 是否公开到社区
     created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -53,3 +56,14 @@ class Like(Base):
     created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (UniqueConstraint("user_id", "design_id"),)
+
+
+class Comment(Base):
+    """评论记录表 — 用户对设计的评论"""
+    __tablename__ = "comments"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    design_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("designs.id"), index=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -12,23 +12,67 @@
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
+    <style>
+        .create-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .selected-scene { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1); margin-bottom: 30px; }
+        .scene-header { background: linear-gradient(135deg, #660874 0%, #a855f7 100%); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .scene-title { font-size: 20px; font-weight: 600; }
+        .change-location-btn { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
+        .change-location-btn:hover { background: rgba(255, 255, 255, 0.3); }
+        .scene-image-container { position: relative; width: 100%; height: 400px; overflow: hidden; background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); }
+        .scene-image { width: 100%; height: 100%; object-fit: cover; }
+        .scene-location-tag { position: absolute; bottom: 20px; left: 20px; background: rgba(0, 0, 0, 0.8); color: white; padding: 12px 24px; border-radius: 10px; font-size: 16px; font-weight: 600; backdrop-filter: blur(10px); }
+
+        .ai-analysis-section { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+        .ai-analysis-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .ai-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #660874 0%, #a855f7 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; }
+        .ai-analysis-title { font-size: 22px; font-weight: 600; color: #660874; }
+        .ai-thinking { display: flex; align-items: center; gap: 16px; padding: 24px; background: rgba(102, 8, 116, 0.05); border-radius: 16px; }
+        .thinking-dots { display: flex; gap: 8px; }
+        .thinking-dot { width: 12px; height: 12px; background: #660874; border-radius: 50%; animation: thinking 1.4s infinite; }
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes thinking { 0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; } 40% { transform: scale(1.2); opacity: 1; } }
+        .ai-analysis-content { font-size: 18px; line-height: 1.8; color: #333; }
+        .ai-issue-list { list-style: none; padding: 0; margin: 20px 0; }
+        .ai-issue-list li { padding: 16px 20px; margin-bottom: 16px; background: rgba(255, 107, 53, 0.08); border-left: 4px solid #ff6b35; border-radius: 8px; font-size: 16px; color: #333; line-height: 1.6; }
+
+        .choices-section { margin-top: 40px; }
+        .choices-header { text-align: center; margin-bottom: 30px; }
+        .choices-title { font-size: 24px; font-weight: 700; color: #660874; margin-bottom: 8px; }
+        .choices-subtitle { font-size: 16px; color: #666; }
+        .choices-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+        .choice-card { background: white; border: 2px solid #e0e0e0; border-radius: 16px; padding: 24px; cursor: pointer; transition: all 0.3s ease; position: relative; }
+        .choice-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #660874 0%, #a855f7 100%); transform: scaleX(0); transition: transform 0.3s ease; }
+        .choice-card:hover { border-color: #a855f7; transform: translateY(-4px); box-shadow: 0 8px 25px rgba(102, 8, 116, 0.2); }
+        .choice-card:hover::before { transform: scaleX(1); }
+        .choice-card.selected { border-color: #660874; background: linear-gradient(135deg, rgba(102, 8, 116, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); }
+        .choice-card.selected::before { transform: scaleX(1); }
+        .choice-icon { width: 56px; height: 56px; background: linear-gradient(135deg, #660874 0%, #a855f7 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: white; }
+        .choice-title { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 12px; }
+        .choice-desc { font-size: 15px; color: #666; line-height: 1.6; }
+
+        .choice-summary { background: linear-gradient(135deg, rgba(102, 8, 116, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); border-radius: 20px; padding: 30px; margin-top: 30px; }
+        .summary-title { font-size: 18px; font-weight: 600; color: #660874; margin-bottom: 20px; }
+        .summary-items { display: flex; flex-wrap: wrap; gap: 12px; }
+        .summary-tag { background: white; padding: 12px 24px; border-radius: 30px; font-size: 15px; color: #333; border: 1px solid #e0e0e0; font-weight: 500; }
+
+        .submit-section { text-align: center; margin-top: 40px; }
+        .submit-btn { background: linear-gradient(135deg, #660874 0%, #a855f7 100%); color: white; border: none; padding: 20px 60px; border-radius: 14px; font-size: 20px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 25px rgba(102, 8, 116, 0.3); }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 35px rgba(102, 8, 116, 0.4); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    </style>
 </head>
 <body>
-    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Navigation -->
     <nav class="nav">
         <div class="nav-content">
             <a href="landing.html" class="nav-logo">
                 <span style="display: flex; align-items: center; gap: 12px;">
                     <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
-                         alt="Tsinghua SIGS"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
-                        <circle cx="24" cy="24" r="20" fill="white"/>
-                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
-                    </svg>
+                         alt="Tsinghua SIGS">
                     <span>清华SIGS</span>
                 </span>
             </a>
@@ -40,7 +84,7 @@
                     <a href="explore.html" class="nav-link">
                         <span lang="zh">探索</span><span lang="en">Explore</span>
                     </a>
-                    <a href="create.html" class="nav-link">
+                    <a href="create.html" class="nav-link active">
                         <span lang="zh">创作</span><span lang="en">Create</span>
                     </a>
                     <a href="gallery.html" class="nav-link">
@@ -56,179 +100,163 @@
         </div>
     </nav>
 
-    <!-- Stage 3: Create -->
-    <section id="stage-create" class="section visible">
+    <section class="section visible">
         <div class="create-container">
-            <!-- Selected Location Display -->
-            <div id="selectedLocationDisplay" class="selected-location-display" style="display: none;">
-                <div class="location-icon">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#660874" stroke-width="2">
-                        <circle cx="10" cy="8" r="5"/>
-                        <path d="M10 3v10M6 8h8" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <div class="location-info">
-                    <div class="location-label-text">
-                        <span lang="zh">已选择位置</span><span lang="en">Selected Location</span>
+            <!-- 选中的画面展示 -->
+            <div class="selected-scene">
+                <div class="scene-header">
+                    <div class="scene-title">
+                        <span lang="zh">你选择的场景</span>
+                        <span lang="en">Your Selected Scene</span>
                     </div>
-                    <div class="location-name" id="locationName"></div>
+                    <button class="change-location-btn" onclick="window.location.href='explore.html'">
+                        <span lang="zh">更换场景</span>
+                        <span lang="en">Change Scene</span>
+                    </button>
                 </div>
-                <a href="explore.html" class="change-location-link">
-                    <span lang="zh">更换</span><span lang="en">Change</span>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 5L6 10M6 5l5 5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </a>
-            </div>
-
-            <div class="create-header">
-                <span class="explore-label">Stage 03</span>
-                <h2 class="create-title">
-                    <span lang="zh">告诉我们你的想法</span>
-                    <span lang="en">Share Your Ideas with Us</span>
-                </h2>
-                <div class="create-title-en">
-                    <span lang="zh">分享你的创意想法</span>
-                    <span lang="en">Share Your Creative Ideas</span>
-                </div>
-                <p class="create-subtitle">
-                    <span lang="zh">用你最自然的语言说就好，哪怕只有一句话</span>
-                    <span lang="en">Just use your natural language, even if it's just one sentence</span>
-                </p>
-            </div>
-
-            <div class="emotion-grid">
-                <div class="emotion-card" data-emotion="crowded">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="14" cy="10" r="5"/>
-                        <path d="M6 24C6 19.58 9.58 16 14 16C18.42 16 22 19.58 22 24" stroke-linecap="round"/>
-                        <circle cx="22" cy="8" r="3"/>
-                        <path d="M18 16C18 13.79 19.79 12 22 12C24.21 12 26 13.79 26 16" stroke-linecap="round"/>
-                    </svg>
-                    <span class="emotion-text"><span lang="zh">太拥挤</span><span lang="en">Too Crowded</span></span>
-                </div>
-                <div class="emotion-card" data-emotion="boring">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="4" y="4" width="20" height="20" rx="4" stroke-linecap="round"/>
-                        <path d="M9 14H19M9 10H15M9 18H17" stroke-linecap="round" stroke-dasharray="2 2"/>
-                    </svg>
-                    <span class="emotion-text"><span lang="zh">太单调</span><span lang="en">Too Boring</span></span>
-                </div>
-                <div class="emotion-card" data-emotion="green">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M14 4V24M14 4C14 4 8 8 8 12C8 15.31 10.69 18 14 18C17.31 18 20 15.31 20 12C20 8 14 4 14 4Z" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 24C14 24 8 20 8 16C8 12.69 10.69 10 14 10" stroke-linecap="round"/>
-                        <path d="M14 24C14 24 20 20 20 16C20 12.69 17.31 10 14 10" stroke-linecap="round"/>
-                    </svg>
-                    <span class="emotion-text"><span lang="zh">想要绿色</span><span lang="en">Want Greenery</span></span>
-                </div>
-                <div class="emotion-card" data-emotion="dark">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="14" cy="14" r="9"/>
-                        <path d="M14 8V14L18 18" stroke-linecap="round"/>
-                        <path d="M22 6L26 2" stroke-linecap="round"/>
-                        <path d="M23 8L26 5" stroke-linecap="round"/>
-                    </svg>
-                    <span class="emotion-text"><span lang="zh">采光不好</span><span lang="en">Poor Lighting</span></span>
-                </div>
-                <div class="emotion-card" data-emotion="noisy">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M7 14H21M3 14C3 14 7 8 14 8C21 8 25 14 25 14" stroke-linecap="round"/>
-                        <path d="M7 14C7 14 11 20 14 20C17 20 21 14 21 14" stroke-linecap="round"/>
-                        <circle cx="14" cy="14" r="2" fill="currentColor"/>
-                        <path d="M4 8L2 6M24 8L26 6M4 20L2 22M24 20L26 22" stroke-linecap="round"/>
-                    </svg>
-                    <span class="emotion-text"><span lang="zh">太吵了</span><span lang="en">Too Noisy</span></span>
-                </div>
-                <div class="emotion-card" data-emotion="limited">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="6" y="8" width="16" height="14" rx="2" stroke-linecap="round"/>
-                        <path d="M10 8V6C10 4.34 11.34 3 13 3H15C16.66 3 18 4.34 18 6V8" stroke-linecap="round"/>
-                        <path d="M14 13V17M12 15H16" stroke-linecap="round"/>
-                    </svg>
-                    <span class="emotion-text"><span lang="zh">不够用</span><span lang="en">Insufficient Space</span></span>
+                <div class="scene-image-container">
+                    <img class="scene-image" id="sceneImage" src="" alt="Selected Scene">
+                    <div class="scene-location-tag" id="sceneLocationTag">
+                        <span lang="zh">加载中...</span>
+                        <span lang="en">Loading...</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="input-panel">
-                <div class="input-group">
-                    <label class="input-label">
-                        <span lang="zh">你的想法</span><span lang="en">Your Ideas</span>
-                    </label>
-                    <p class="input-helper">
-                        <span lang="zh">比如：这里的长椅太少了，下课想坐下来发发呆</span>
-                        <span lang="en">e.g.: There are too few benches here, I want to sit and daydream after class</span>
+            <!-- AI分析区域 -->
+            <div class="ai-analysis-section">
+                <div class="ai-analysis-header">
+                    <div class="ai-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="ai-analysis-title">
+                            <span lang="zh">AI 智能分析</span>
+                            <span lang="en">AI Analysis</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="aiAnalysisContent">
+                    <div class="ai-thinking">
+                        <div class="thinking-dots">
+                            <div class="thinking-dot"></div>
+                            <div class="thinking-dot"></div>
+                            <div class="thinking-dot"></div>
+                        </div>
+                        <span style="font-size: 16px;">
+                            <span lang="zh">AI正在分析画面，识别可以改进的地方...</span>
+                            <span lang="en">AI is analyzing the scene, identifying areas for improvement...</span>
+                        </span>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="submit-btn" id="skipToResultBtn" style="padding: 12px 30px; font-size: 16px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        <span lang="zh">跳过分析，直接看结果</span>
+                        <span lang="en">Skip to Results</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 6个选择选项 -->
+            <div class="choices-section" id="choicesSection" style="display: none;">
+                <div class="choices-header">
+                    <h2 class="choices-title">
+                        <span lang="zh">选择你想要的改进方向</span>
+                        <span lang="en">Choose Your Improvement Direction</span>
+                    </h2>
+                    <p class="choices-subtitle">
+                        <span lang="zh">基于AI分析，我们为你准备了6个设计方案</span>
+                        <span lang="en">Based on AI analysis, we've prepared 6 design options for you</span>
                     </p>
-                    <textarea class="text-area" id="userInput" placeholder="希望这个角落能种一棵树，夏天可以乘凉
-感觉这条路走起来不安全，晚上没有灯
-这里太单调了，想要更多颜色
-
-Hope to plant a tree in this corner for summer shade
-Feel unsafe walking here at night without lights
-This place is too monotonous, want more colors" data-placeholder-zh="希望这个角落能种一棵树，夏天可以乘凉
-感觉这条路走起来不安全，晚上没有灯
-这里太单调了，想要更多颜色" data-placeholder-en="Hope to plant a tree in this corner for summer shade
-Feel unsafe walking here at night without lights
-This place is too monotonous, want more colors"></textarea>
                 </div>
 
-                <div class="expand-toggle" id="expandToggle">
-                    <span class="toggle-label">
-                        <span lang="zh">补充信息（可选）</span><span lang="en">Additional Info (Optional)</span>
-                    </span>
-                    <svg class="toggle-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M5 8L10 13L15 8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
+                <div class="choices-grid" id="choicesGrid"></div>
 
-                <div class="expand-content">
-                    <div class="option-row">
-                        <div class="option-row-title">
-                            <span lang="zh">使用时间</span><span lang="en">Time of Day</span>
-                        </div>
-                        <div class="chip-group" id="timeChips">
-                            <span class="chip" data-option="time" data-value="morning"><span lang="zh">早晨</span><span lang="en">Morning</span></span>
-                            <span class="chip" data-option="time" data-value="afternoon"><span lang="zh">午后</span><span lang="en">Afternoon</span></span>
-                            <span class="chip" data-option="time" data-value="evening"><span lang="zh">傍晚</span><span lang="en">Evening</span></span>
-                            <span class="chip" data-option="time" data-value="night"><span lang="zh">夜晚</span><span lang="en">Night</span></span>
-                        </div>
+                <!-- 选择汇总 -->
+                <div class="choice-summary" id="choiceSummary">
+                    <div class="summary-title">
+                        <span lang="zh">你的选择</span>
+                        <span lang="en">Your Selections</span>
                     </div>
-
-                    <div class="option-row">
-                        <div class="option-row-title">
-                            <span lang="zh">使用方式</span><span lang="en">Activity</span>
-                        </div>
-                        <div class="chip-group" id="activityChips">
-                            <span class="chip" data-option="activity" data-value="alone"><span lang="zh">独处</span><span lang="en">Alone</span></span>
-                            <span class="chip" data-option="activity" data-value="friends"><span lang="zh">和朋友</span><span lang="en">Friends</span></span>
-                            <span class="chip" data-option="activity" data-value="work"><span lang="zh">工作</span><span lang="en">Work</span></span>
-                            <span class="chip" data-option="activity" data-value="rest"><span lang="zh">休息</span><span lang="en">Rest</span></span>
-                            <span class="chip" data-option="activity" data-value="pass-by"><span lang="zh">路过</span><span lang="en">Pass By</span></span>
-                        </div>
-                    </div>
+                    <div class="summary-items" id="summaryItems"></div>
                 </div>
+            </div>
 
+            <!-- 提交按钮 -->
+            <div class="submit-section" id="submitSection" style="display: none;">
                 <button class="submit-btn" id="submitBtn">
-                    <span lang="zh">让AI来理解我的想法 →</span>
-                    <span lang="en">Let AI Understand My Ideas →</span>
+                    <span lang="zh">让 AI 来实现我的想法 →</span>
+                    <span lang="en">Let AI Bring My Ideas to Life →</span>
                 </button>
-
-                <!-- Error Message -->
-                <div class="submit-error-message" id="submitError" style="display: none;">
-                    <span lang="zh">提交失败，请重试</span>
-                    <span lang="en">Submit failed, please retry</span>
-                </div>
             </div>
         </div>
     </section>
 
-    <script src="../js/config.js?v=3"></script>
-    <script src="../js/api.js?v=3"></script>
-    <script src="../js/state.js?v=3"></script>
-    <script src="../js/utils.js?v=3"></script>
-    <script src="../js/router.js?v=3"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/state.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/router.js"></script>
     <script>
-        // Language Switcher
+        const DESIGN_CHOICES = [
+            {
+                id: 'greenery',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M12 2C12 2 6 6 6 10c0 3.31 2.69 6 6 6s6-2.69 6-6c0-4-6-8-6-8z"/></svg>`,
+                title: { zh: '增加绿化景观', en: 'Add Greenery' },
+                desc: { zh: '增加树木、花草和自然元素，改善生态环境', en: 'Add trees and flowers to improve ecology' }
+            },
+            {
+                id: 'seating',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="8" rx="2"/><path d="M8 10V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4"/></svg>`,
+                title: { zh: '增加休息座椅', en: 'Add Seating' },
+                desc: { zh: '设置更多座椅，提供舒适的停留空间', en: 'Install more benches for comfortable rest' }
+            },
+            {
+                id: 'shading',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42"/></svg>`,
+                title: { zh: '改善遮阳设施', en: 'Better Shading' },
+                desc: { zh: '增加遮阳棚、树荫等遮阳设施', en: 'Add shade structures and tree shade' }
+            },
+            {
+                id: 'lighting',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v6M12 18v4M4.93 4.93l4.24 4.24M18.07 4.93l-4.24 4.24"/></svg>`,
+                title: { zh: '优化照明设计', en: 'Optimize Lighting' },
+                desc: { zh: '改善夜间照明，增加氛围灯光', en: 'Improve night lighting with ambient lights' }
+            },
+            {
+                id: 'pathway',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V6s-1 1-4 1-5-2-8-2-4 1-4 1v9z"/></svg>`,
+                title: { zh: '优化步行路径', en: 'Optimize Walkways' },
+                desc: { zh: '重新规划步行路径，提升通行效率', en: 'Redesign walking paths for better efficiency' }
+            },
+            {
+                id: 'art',
+                icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6M9 9h6"/></svg>`,
+                title: { zh: '增加艺术装置', en: 'Add Art Installations' },
+                desc: { zh: '添加公共艺术装置，提升文化品位', en: 'Add public art to enhance cultural quality' }
+            }
+        ];
+
+        let userChoices = [];
+        let currentLocationData = null;
+
+        const sceneImage = document.getElementById('sceneImage');
+        const sceneLocationTag = document.getElementById('sceneLocationTag');
+        const aiAnalysisContent = document.getElementById('aiAnalysisContent');
+        const choicesSection = document.getElementById('choicesSection');
+        const choicesGrid = document.getElementById('choicesGrid');
+        const choiceSummary = document.getElementById('choiceSummary');
+        const summaryItems = document.getElementById('summaryItems');
+        const submitSection = document.getElementById('submitSection');
+        const submitBtn = document.getElementById('submitBtn');
+
         const langSwitcher = document.getElementById('langSwitcher');
 
         function updateLanguageDisplay() {
@@ -309,121 +337,214 @@ This place is too monotonous, want more colors"></textarea>
             }, 150);
         });
 
-        // Initialize selected emotions array — 从 sessionStorage 恢复或新建
-        APP_STATE.selectedEmotions = getState('selectedEmotions') || [];
+        function loadLocationData() {
+            const savedLocation = getState('selectedLocation');
+            if (!savedLocation) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请先选择一个场景' : 'Please select a scene first',
+                    'warning'
+                );
+                setTimeout(() => {
+                    window.location.href = 'explore.html';
+                }, 1500);
+                return false;
+            }
 
-        // Emotion cards
-        document.querySelectorAll('.emotion-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const emotion = card.dataset.emotion;
-                const index = APP_STATE.selectedEmotions.indexOf(emotion);
+            currentLocationData = savedLocation;
 
-                if (index > -1) {
-                    APP_STATE.selectedEmotions.splice(index, 1);
-                    card.classList.remove('selected');
-                } else {
-                    APP_STATE.selectedEmotions.push(emotion);
-                    card.classList.add('selected');
-                }
+            if (savedLocation.panorama_image) {
+                sceneImage.src = savedLocation.panorama_image;
+            }
+            sceneLocationTag.textContent = savedLocation.label || (APP_STATE.language === 'zh' ? '清华SIGS校园' : 'Tsinghua SIGS Campus');
+
+            return true;
+        }
+
+        // 跳过分析直接看结果
+        document.getElementById('skipToResultBtn').addEventListener('click', () => {
+            console.log('点击跳过分析按钮');
+            // 保存空的选择状态
+            setState('userChoices', []);
+            setState('designId', 'skip-' + Date.now());
+            // 直接跳转到结果页面
+            window.location.href = 'result.html';
+        });
+
+        function showAIAnalysis() {
+            setTimeout(() => {
+                const issues = [
+                    APP_STATE.language === 'zh' ? '开放空间较为空旷，缺乏休憩设施' : 'The open space is quite empty, lacks resting facilities',
+                    APP_STATE.language === 'zh' ? '绿化层次单一，季节变化不明显' : 'Greenery is monotonous, lacks seasonal variety',
+                    APP_STATE.language === 'zh' ? '遮阳设施不足，夏季舒适度较低' : 'Insufficient shade facilities, low comfort in summer',
+                    APP_STATE.language === 'zh' ? '夜间照明不足，存在安全隐患' : 'Insufficient night lighting, potential safety hazards',
+                    APP_STATE.language === 'zh' ? '步行路径不清晰，导向性较差' : 'Walking paths unclear, poor wayfinding'
+                ];
+
+                const analysisText = APP_STATE.language === 'zh'
+                    ? '我已经仔细分析了这个场景，发现了以下可以改进的地方：'
+                    : 'I have carefully analyzed this scene and found the following areas for improvement:';
+
+                const issuesListHTML = issues.map(issue => `<li>${issue}</li>`).join('');
+
+                aiAnalysisContent.innerHTML = `
+                    <p style="font-size: 18px; margin-bottom: 16px;">${analysisText}</p>
+                    <ul class="ai-issue-list">
+                        ${issuesListHTML}
+                    </ul>
+                    <p style="font-size: 16px; margin-top: 20px;">
+                        ${APP_STATE.language === 'zh'
+                            ? '基于以上分析，我为你准备了6个改进方案，你可以选择多个：'
+                            : 'Based on the above analysis, I have prepared 6 improvement options for you. You can select multiple:'}
+                    </p>
+                `;
+
+                choicesSection.style.display = 'block';
+                createChoiceCards();
+
+                setTimeout(() => {
+                    choicesSection.scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+
+            }, 2500);
+        }
+
+        function createChoiceCards() {
+            choicesGrid.innerHTML = '';
+
+            DESIGN_CHOICES.forEach(choice => {
+                const card = document.createElement('div');
+                card.className = 'choice-card';
+                card.dataset.choiceId = choice.id;
+                card.innerHTML = `
+                    <div class="choice-icon">${choice.icon}</div>
+                    <div class="choice-title">${choice.title[APP_STATE.language]}</div>
+                    <div class="choice-desc">${choice.desc[APP_STATE.language]}</div>
+                `;
+
+                card.addEventListener('click', () => toggleChoice(choice.id, card));
+                choicesGrid.appendChild(card);
             });
-        });
+        }
 
-        // Expand toggle
-        const expandToggle = document.getElementById('expandToggle');
-        expandToggle.addEventListener('click', () => {
-            expandToggle.classList.toggle('open');
-        });
+        function toggleChoice(choiceId, cardElement) {
+            const index = userChoices.indexOf(choiceId);
 
-        // Time chips
-        document.querySelectorAll('#timeChips .chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                document.querySelectorAll('#timeChips .chip').forEach(c => c.classList.remove('selected'));
-                chip.classList.add('selected');
-                APP_STATE.timePreference = chip.dataset.value;
-            });
-        });
+            if (index > -1) {
+                userChoices.splice(index, 1);
+                cardElement.classList.remove('selected');
+            } else {
+                userChoices.push(choiceId);
+                cardElement.classList.add('selected');
+            }
 
-        // Activity chips
-        document.querySelectorAll('#activityChips .chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                document.querySelectorAll('#activityChips .chip').forEach(c => c.classList.remove('selected'));
-                chip.classList.add('selected');
-                APP_STATE.activityPreference = chip.dataset.value;
-            });
-        });
+            updateSummary();
 
-        // Submit button
-        const submitBtn = document.getElementById('submitBtn');
-        const submitError = document.getElementById('submitError');
-
-        // 隐藏错误消息
-        function hideError() {
-            if (submitError) {
-                submitError.style.display = 'none';
+            if (userChoices.length > 0) {
+                submitSection.style.display = 'block';
+            } else {
+                submitSection.style.display = 'none';
             }
         }
 
-        // 显示错误消息
-        function showError() {
-            if (submitError) {
-                submitError.style.display = 'block';
-                // 3秒后自动隐藏
-                setTimeout(hideError, 3000);
+        function updateSummary() {
+            if (userChoices.length === 0) {
+                choiceSummary.style.display = 'none';
+                return;
             }
+
+            choiceSummary.style.display = 'block';
+            summaryItems.innerHTML = '';
+
+            userChoices.forEach(choiceId => {
+                const choice = DESIGN_CHOICES.find(c => c.id === choiceId);
+                if (choice) {
+                    const tag = document.createElement('div');
+                    tag.className = 'summary-tag';
+                    tag.textContent = choice.title[APP_STATE.language];
+                    summaryItems.appendChild(tag);
+                }
+            });
         }
 
         submitBtn.addEventListener('click', async () => {
-            const userInput = document.getElementById('userInput').value.trim();
-            const selectedLocation = getState('selectedLocation');
-
-            // 隐藏之前的错误消息
-            hideError();
-
-            // Validation
-            if (!selectedLocation) {
-                showError();
+            if (userChoices.length === 0) {
+                Toast.show(
+                    APP_STATE.language === 'zh' ? '请至少选择一个改进方向' : 'Please select at least one improvement direction',
+                    'warning'
+                );
                 return;
             }
 
-            if (!userInput && APP_STATE.selectedEmotions.length === 0) {
-                showError();
-                return;
-            }
-
-            // Store state
-            setState('selectedEmotions', APP_STATE.selectedEmotions);
-            setState('userInput', userInput);
-            setState('timePreference', APP_STATE.timePreference);
-            setState('activityPreference', APP_STATE.activityPreference);
-
-            // 调用后端 API 提交创意输入
             submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.6';
+            submitBtn.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    <div class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+                    <span>${APP_STATE.language === 'zh' ? '正在提交...' : 'Submitting...'}</span>
+                </div>
+            `;
+
+            const choiceDescriptions = userChoices.map(id => {
+                const choice = DESIGN_CHOICES.find(c => c.id === id);
+                return choice ? choice.title[APP_STATE.language] : id;
+            }).join('、');
+
+            const designInput = APP_STATE.language === 'zh'
+                ? `在${currentLocationData.label}，我希望：${choiceDescriptions}`
+                : `At ${currentLocationData.label}, I want: ${choiceDescriptions}`;
+
+            const sessionId = getState('sessionId') || 'demo-session-' + Date.now();
+
             try {
-                const sessionId = getState('sessionId');
                 const res = await API.submitDesign({
                     session_id: sessionId,
-                    location_x: selectedLocation.location_x,
-                    location_y: selectedLocation.location_y,
-                    location_z: selectedLocation.location_z,
-                    location_label: selectedLocation.label,
-                    emotion_tags: APP_STATE.selectedEmotions,
-                    user_input: userInput
+                    location_x: currentLocationData.location_x,
+                    location_y: currentLocationData.location_y,
+                    location_z: currentLocationData.location_z || 0,
+                    location_label: currentLocationData.label,
+                    emotion_tags: userChoices,
+                    user_input: designInput
                 });
 
-                // 存储 designId 和 AI 响应
                 setState('designId', res.data.id);
                 setState('aiResponse', res.data.ai_response);
+                setState('userChoices', userChoices);
 
-                // 跳转到生成页面
-                window.location.href = 'generate.html';
+                setTimeout(() => {
+                    window.location.href = 'result.html';
+                }, 1000);
+
             } catch (err) {
-                console.error('提交失败:', err);
-                showError();
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
+                console.warn('API调用失败，跳转到result页面:', err);
+
+                setTimeout(() => {
+                    window.location.href = 'result.html';
+                }, 1000);
             }
         });
+
+        async function init() {
+            updateLanguageDisplay();
+
+            if (!loadLocationData()) {
+                return;
+            }
+
+            showAIAnalysis();
+
+            let sessionId = getState('sessionId');
+            if (!sessionId) {
+                try {
+                    const res = await API.createSession();
+                    sessionId = res.data.session_id;
+                    setState('sessionId', sessionId);
+                    APP_STATE.sessionId = sessionId;
+                } catch (err) {
+                    console.error('创建会话失败:', err);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>

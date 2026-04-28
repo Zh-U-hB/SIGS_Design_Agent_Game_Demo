@@ -3,33 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区创意 — 清华大学深圳国际研究生院 | Campus Roamer — Tsinghua SIGS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>社区创意 — 清华大学深圳国际研究生院 | Creative Community — Tsinghua SIGS</title>
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <link rel="stylesheet" href="/engine/engine.css">
+    <style>
+        /* 语言切换样式 */
+        body.lang-en [lang="zh"] { display: none; }
+        body:not(.lang-en) [lang="en"] { display: none; }
+
+        body.lang-en [lang="zh"].lang-active,
+        body:not(.lang-en) [lang="en"].lang-active { display: inline; }
+
+        .gallery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .gallery-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #660874;
+            margin-bottom: 12px;
+        }
+
+        .gallery-subtitle {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 40px;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #660874;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .design-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .design-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(102, 8, 116, 0.2);
+        }
+
+        .card-image {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .design-card:hover .card-image img {
+            transform: scale(1.1);
+        }
+
+        .card-location {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(102, 8, 116, 0.9);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .author-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .author-name {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 16px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .stat:hover {
+            transform: scale(1.1);
+        }
+
+        .stat svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .stat.liked {
+            color: #ff4757;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+            opacity: 0.5;
+        }
+
+        /* 评论弹窗样式 */
+        .comment-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .comment-modal-overlay.visible {
+            display: flex;
+        }
+
+        .comment-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .comment-modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            color: white;
+        }
+
+        .comment-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .comment-modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .comment-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .comment-modal-body {
+            padding: 24px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .comment-design-info {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .comment-design-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .comment-design-location {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .comment-input-area {
+            margin-bottom: 24px;
+        }
+
+        .comment-input-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #660874;
+        }
+
+        .comment-submit-btn {
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .comment-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 8, 116, 0.3);
+        }
+
+        .comment-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .comments-list-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .comment-item:hover {
+            background: #f3f4f6;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #660874 0%, #a855f7 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .comment-text {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .no-comments {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                gap: 30px;
+            }
+
+            .comment-modal {
+                width: 95%;
+                max-height: 90vh;
+            }
+
+            .comment-modal-body {
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Navigation -->
     <nav class="nav">
         <div class="nav-content">
             <a href="landing.html" class="nav-logo">
                 <span style="display: flex; align-items: center; gap: 12px;">
                     <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
-                         alt="Tsinghua SIGS"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
-                        <circle cx="24" cy="24" r="20" fill="white"/>
-                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
-                    </svg>
+                         alt="Tsinghua SIGS">
                     <span>清华SIGS</span>
                 </span>
             </a>
@@ -44,7 +489,7 @@
                     <a href="create.html" class="nav-link">
                         <span lang="zh">创作</span><span lang="en">Create</span>
                     </a>
-                    <a href="gallery.html" class="nav-link">
+                    <a href="gallery.html" class="nav-link active">
                         <span lang="zh">社区</span><span lang="en">Gallery</span>
                     </a>
                 </div>
@@ -57,170 +502,181 @@
         </div>
     </nav>
 
-    <!-- Stage 5: Gallery -->
-    <section id="stage-gallery" class="section visible">
-        <div class="gallery-header">
-            <span class="explore-label">Stage 05</span>
-            <h2 class="gallery-title">
-                <span lang="zh">清华SIGS所有人的校园想象</span>
-                <span lang="en">Tsinghua SIGS Community Campus Design Gallery</span>
-            </h2>
-            <div class="gallery-title-en">
-                <span lang="zh">清华SIGS所有人的校园想象</span>
-                <span lang="en">Community Campus Design Gallery</span>
+    <section class="section visible">
+        <div class="gallery-container">
+            <div class="gallery-header">
+                <h1 class="gallery-title">
+                    <span lang="zh">清华SIGS创意社区</span>
+                    <span lang="en">Tsinghua SIGS Creative Community</span>
+                </h1>
+                <p class="gallery-subtitle">
+                    <span lang="zh">探索校园设计的无限可能，分享你的创意灵感</span>
+                    <span lang="en">Explore infinite possibilities of campus design, share your creative inspiration</span>
+                </p>
             </div>
-            <p class="gallery-subtitle">
-                <span lang="zh">这里的每一个点，都是清华人在这座校园里的感受与期待</span>
-                <span lang="en">Every point here represents a Tsinghua person's feelings and expectations for this campus</span>
-            </p>
-            <div class="gallery-metrics">
-                <div class="metric">
-                    <div class="metric-value" id="visitorCount">128</div>
-                    <div class="metric-label">
-                        <span lang="zh">位访客参与</span><span lang="en">Visitors</span>
-                    </div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value" id="areaCount">23</div>
-                    <div class="metric-label">
-                        <span lang="zh">个区域覆盖</span><span lang="en">Areas</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="gallery-map-wrapper">
-            <!-- Filter Section -->
-            <div class="gallery-filter-section">
-                <!-- Search -->
-                <div class="input-group">
-                    <input type="text" id="searchInput" class="search-input" placeholder="搜索设计（关键词、位置、情绪）">
-                </div>
-
-                <!-- Filter Options -->
-                <div class="option-row">
-                    <div class="option-row-title">
-                        <span lang="zh">位置</span><span lang="en">Location</span>
-                    </div>
-                    <div class="chip-group" id="locationChips">
-                        <span class="chip selected" data-value="all"><span lang="zh">全部</span><span lang="en">All</span></span>
-                        <span class="chip" data-value="图书馆"><span lang="zh">图书馆</span><span lang="en">Library</span></span>
-                        <span class="chip" data-value="信息楼"><span lang="zh">信息楼</span><span lang="en">Information Building</span></span>
-                        <span class="chip" data-value="能源楼"><span lang="zh">能源楼</span><span lang="en">Energy Building</span></span>
-                        <span class="chip" data-value="国际中心"><span lang="zh">国际中心</span><span lang="en">International Center</span></span>
-                        <span class="chip" data-value="宿舍楼"><span lang="zh">宿舍楼</span><span lang="en">Dormitory</span></span>
-                        <span class="chip" data-value="体育馆"><span lang="zh">体育馆</span><span lang="en">Gymnasium</span></span>
-                        <span class="chip" data-value="食堂"><span lang="zh">食堂</span><span lang="en">Cafeteria</span></span>
-                        <span class="chip" data-value="行政楼"><span lang="zh">行政楼</span><span lang="en">Administration</span></span>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalDesigns">0</div>
+                    <div class="stat-label">
+                        <span lang="zh">设计方案</span><span lang="en">Designs</span>
                     </div>
                 </div>
-
-                <div class="option-row">
-                    <div class="option-row-title">
-                        <span lang="zh">使用时间</span><span lang="en">Time of Day</span>
-                    </div>
-                    <div class="chip-group" id="timeChips">
-                        <span class="chip selected" data-value="all"><span lang="zh">全部</span><span lang="en">All</span></span>
-                        <span class="chip" data-value="morning"><span lang="zh">早晨</span><span lang="en">Morning</span></span>
-                        <span class="chip" data-value="afternoon"><span lang="zh">午后</span><span lang="en">Afternoon</span></span>
-                        <span class="chip" data-value="evening"><span lang="zh">傍晚</span><span lang="en">Evening</span></span>
-                        <span class="chip" data-value="night"><span lang="zh">夜晚</span><span lang="en">Night</span></span>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalLikes">0</div>
+                    <div class="stat-label">
+                        <span lang="zh">点赞</span><span lang="en">Likes</span>
                     </div>
                 </div>
-
-                <div class="option-row">
-                    <div class="option-row-title">
-                        <span lang="zh">使用方式</span><span lang="en">Activity</span>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalComments">0</div>
+                    <div class="stat-label">
+                        <span lang="zh">评论</span><span lang="en">Comments</span>
                     </div>
-                    <div class="chip-group" id="activityChips">
-                        <span class="chip selected" data-value="all"><span lang="zh">全部</span><span lang="en">All</span></span>
-                        <span class="chip" data-value="alone"><span lang="zh">独处</span><span lang="en">Alone</span></span>
-                        <span class="chip" data-value="friends"><span lang="zh">和朋友</span><span lang="en">Friends</span></span>
-                        <span class="chip" data-value="work"><span lang="zh">工作</span><span lang="en">Work</span></span>
-                        <span class="chip" data-value="rest"><span lang="zh">休息</span><span lang="en">Rest</span></span>
-                        <span class="chip" data-value="pass-by"><span lang="zh">路过</span><span lang="en">Pass By</span></span>
-                    </div>
-                </div>
-
-                <div class="option-row">
-                    <div class="option-row-title">
-                        <span lang="zh">排序</span><span lang="en">Sort</span>
-                    </div>
-                    <div class="chip-group" id="sortChips">
-                        <span class="chip selected" data-value="newest"><span lang="zh">最新</span><span lang="en">Newest</span></span>
-                        <span class="chip" data-value="popular"><span lang="zh">热门</span><span lang="en">Popular</span></span>
-                    </div>
-                </div>
-
-                <!-- Results Count -->
-                <div class="filter-results-count">
-                    <span class="filter-number" id="resultsCount">0</span>
-                    <span lang="zh">个设计</span><span lang="en"> designs</span>
                 </div>
             </div>
 
-            <div class="gallery-map">
-                <div class="campus-engine-container" id="galleryCampusContainer"></div>
-            </div>
+            <div class="gallery-grid" id="galleryGrid"></div>
         </div>
     </section>
 
-    <!-- Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <button class="modal-close" id="modalClose">×</button>
-            <div class="modal-header-section">
-                <h3 class="modal-title">
-                    <span lang="zh">设计创意</span><span lang="en">Design Idea</span>
-                </h3>
-                <!-- Like Button -->
-                <div class="like-button-wrapper">
-                    <button class="like-button" id="likeButton">
-                        <svg class="like-icon" id="likeIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span class="like-count" id="likeCount">0</span>
+    <!-- 评论弹窗 -->
+    <div class="comment-modal-overlay" id="commentModal">
+        <div class="comment-modal">
+            <div class="comment-modal-header">
+                <div class="comment-modal-title">
+                    <span lang="zh">评论</span>
+                    <span lang="en">Comments</span>
+                </div>
+                <button class="comment-modal-close" id="commentModalClose">×</button>
+            </div>
+            <div class="comment-modal-body">
+                <div class="comment-design-info">
+                    <div class="comment-design-title" id="commentDesignTitle"></div>
+                    <div class="comment-design-location" id="commentDesignLocation"></div>
+                </div>
+
+                <div class="comment-input-area">
+                    <label class="comment-input-label">
+                        <span lang="zh">发表你的评论</span>
+                        <span lang="en">Write your comment</span>
+                    </label>
+                    <textarea class="comment-input" id="commentInput"
+                        placeholder="分享你的想法..."
+                        data-placeholder-zh="分享你的想法..."
+                        data-placeholder-en="Share your thoughts..."></textarea>
+                    <button class="comment-submit-btn" id="commentSubmitBtn">
+                        <span lang="zh">发送评论</span>
+                        <span lang="en">Submit</span>
                     </button>
                 </div>
-            </div>
-            <div class="modal-content-box">
-                <div class="modal-label">
-                    <span lang="zh">原始想法</span><span lang="en">Original Idea</span>
+
+                <div class="comments-list-title">
+                    <span lang="zh">全部评论</span>
+                    <span lang="en">All Comments</span>
+                    <span id="commentCount">(0)</span>
                 </div>
-                <p class="modal-text" id="modalInputText"></p>
+                <div class="comment-list" id="commentList"></div>
             </div>
-            <div class="modal-content-box">
-                <div class="modal-label">
-                    <span lang="zh">AI设计方案</span><span lang="en">AI Design Solution</span>
-                </div>
-                <p class="modal-text" id="modalResultText"></p>
-            </div>
-            <img class="modal-image" id="modalImage" style="display: none;" alt="Generated Design">
         </div>
     </div>
 
     <script src="../js/config.js"></script>
-    <script src="../js/api.js"></script>
-    <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
-    <script src="../js/router.js"></script>
+    <script>
+        // 示例设计数据
+        const MOCK_DESIGNS = [
+            {
+                id: '1',
+                title: '图书馆休息区改造',
+                desc: '在图书馆角落增加舒适的休息座椅和绿植，创造一个安静的阅读休息空间。',
+                location: '图书馆',
+                image: 'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=800&h=600&fit=crop',
+                author: '张同学',
+                likes: 45,
+                comments: [
+                    { author: '李同学', content: '这个设计很棒！', time: '2小时前' },
+                    { author: '王老师', content: '很有创意的想法。', time: '5小时前' }
+                ]
+            },
+            {
+                id: '2',
+                title: '信息楼前的社交空间',
+                desc: '将信息楼前空地改造成开放式的社交空间，增加户外座椅和遮阳设施。',
+                location: '信息楼',
+                image: 'https://images.unsplash.com/photo-1596524430615-b46475ddff6e?w=800&h=600&fit=crop',
+                author: '李同学',
+                likes: 38,
+                comments: [
+                    { author: '赵同学', content: '太需要这个了！', time: '1天前' }
+                ]
+            },
+            {
+                id: '3',
+                title: '能源楼绿色屋顶',
+                desc: '在能源楼顶部建设绿色屋顶花园，增加校园绿化面积，改善生态环境。',
+                location: '能源楼',
+                image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=600&fit=crop',
+                author: '王同学',
+                likes: 56,
+                comments: []
+            },
+            {
+                id: '4',
+                title: '国际中心文化交流区',
+                desc: '打造一个促进文化交流的开放式区域，展示各国文化元素。',
+                location: '国际中心',
+                image: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&h=600&fit=crop',
+                author: '刘同学',
+                likes: 42,
+                comments: [
+                    { author: '陈同学', content: '很有意义的设计！', time: '3小时前' }
+                ]
+            },
+            {
+                id: '5',
+                title: '学生活动中心多功能厅',
+                desc: '改造学生活动中心，增加多功能活动空间，支持各类学生活动。',
+                location: '学生活动中心',
+                image: 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=800&h=600&fit=crop',
+                author: '陈同学',
+                likes: 67,
+                comments: [
+                    { author: '学生会', content: '支持！', time: '1天前' }
+                ]
+            },
+            {
+                id: '6',
+                title: '中心花园艺术装置',
+                desc: '在中心花园增加互动艺术装置，提升校园艺术氛围。',
+                location: '中心花园',
+                image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
+                author: '赵同学',
+                likes: 51,
+                comments: []
+            }
+        ];
 
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-        }
-    }
-    </script>
-    <script type="module">
-        import { CampusEngine } from '/engine/index.js';
+        // 当前状态
+        let likedDesigns = new Set();
+        let currentLanguage = localStorage.getItem('lang') || 'zh';
 
-        // Language Switcher
+        // DOM 元素
+        const galleryGrid = document.getElementById('galleryGrid');
         const langSwitcher = document.getElementById('langSwitcher');
 
+        // 更新评论输入框占位符
+        function updateCommentInputPlaceholder() {
+            if (commentInput) {
+                const zhPlaceholder = commentInput.getAttribute('data-placeholder-zh');
+                const enPlaceholder = commentInput.getAttribute('data-placeholder-en');
+                commentInput.placeholder = currentLanguage === 'zh' ? zhPlaceholder : enPlaceholder;
+            }
+        }
+
+        // 更新语言显示
         function updateLanguageDisplay() {
-            if (APP_STATE.language === 'en') {
+            if (currentLanguage === 'en') {
                 document.body.classList.add('lang-en');
             } else {
                 document.body.classList.remove('lang-en');
@@ -229,346 +685,222 @@
             const zhSpan = langSwitcher.querySelector('[lang="zh"]');
             const enSpan = langSwitcher.querySelector('[lang="en"]');
 
-            if (APP_STATE.language === 'zh') {
+            if (currentLanguage === 'zh') {
                 zhSpan.classList.add('lang-active');
                 enSpan.classList.remove('lang-active');
             } else {
                 enSpan.classList.add('lang-active');
                 zhSpan.classList.remove('lang-active');
             }
+
+            // 更新评论输入框占位符
+            updateCommentInputPlaceholder();
         }
 
-        updateLanguageDisplay();
-
+        // 语言切换事件
         langSwitcher.addEventListener('click', (e) => {
             const clickedSpan = e.target.closest('[lang]');
             if (clickedSpan) {
                 const clickedLang = clickedSpan.getAttribute('lang');
-                if (clickedLang === APP_STATE.language) return;
+                if (clickedLang === currentLanguage) return;
             }
 
-            APP_STATE.language = APP_STATE.language === 'zh' ? 'en' : 'zh';
-            localStorage.setItem('lang', APP_STATE.language);
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', currentLanguage);
             updateLanguageDisplay();
+
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
         });
 
-        // 初始化 3D Gallery 引擎
-        const galleryContainer = document.getElementById('galleryCampusContainer');
-        const galleryEngine = new CampusEngine({
-            container: galleryContainer,
-            mode: 'gallery',
-            cameraMode: 'orbit',
-            showBuildings: true,
-            showMarkers: false,
-            language: APP_STATE.language,
-        });
+        // 渲染设计卡片
+        function renderGallery() {
+            console.log('开始渲染，共', MOCK_DESIGNS.length, '个设计');
 
-        galleryEngine.on('marker-clicked', (data) => {
-            openDesignModal(data.id);
-        });
+            galleryGrid.innerHTML = '';
 
-        galleryEngine.start();
+            MOCK_DESIGNS.forEach(design => {
+                const card = document.createElement('div');
+                card.className = 'design-card';
+                card.innerHTML = `
+                    <div class="card-image">
+                        <img src="${design.image}" alt="${design.title}">
+                        <span class="card-location">${design.location}</span>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${design.title}</h3>
+                        <p class="card-desc">${design.desc}</p>
+                        <div class="card-footer">
+                            <div class="card-author">
+                                <div class="author-avatar">${design.author.charAt(0)}</div>
+                                <span class="author-name">${design.author}</span>
+                            </div>
+                            <div class="card-stats">
+                                <div class="stat ${likedDesigns.has(design.id) ? 'liked' : ''}" onclick="toggleLike('${design.id}', event)">
+                                    <svg viewBox="0 0 24 24" fill="${likedDesigns.has(design.id) ? '#ff4757' : 'none'}" stroke="${likedDesigns.has(design.id) ? '#ff4757' : 'currentColor'}" stroke-width="2">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                    </svg>
+                                    <span>${design.likes}</span>
+                                </div>
+                                <div class="stat" onclick="openCommentModal('${design.id}', event)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                    </svg>
+                                    <span>${design.comments.length}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
 
-        // 筛选状态管理
-        const filterState = {
-            search: '',
-            location: 'all',
-            time: 'all',
-            activity: 'all',
-            sort: 'newest',
-            allDesigns: [],
-            filteredDesigns: []
-        };
-
-        // 加载社区数据
-        async function renderGalleryData() {
-            try {
-                const [mapRes, statsRes] = await Promise.allSettled([
-                    API.getMapData(),
-                    API.getStats(),
-                ]);
-
-                if (statsRes.status === 'fulfilled' && statsRes.value.data) {
-                    const stats = statsRes.value.data;
-                    const visitorEl = document.getElementById('visitorCount');
-                    const areaEl = document.getElementById('areaCount');
-                    if (visitorEl) visitorEl.textContent = stats.total_visitors || 0;
-                    if (areaEl) areaEl.textContent = stats.total_areas || 0;
-                }
-
-                if (mapRes.status === 'fulfilled' && mapRes.value.data && mapRes.value.data.length > 0) {
-                    filterState.allDesigns = mapRes.value.data;
-                    applyFilters();
-                }
-            } catch (err) {
-                console.error('获取社区数据失败:', err);
-            }
-        }
-
-        // 处理chip点击
-        function handleChipClick(type, value) {
-            filterState[type] = value;
-
-            // 更新chip激活状态
-            const containerId = type === 'location' ? 'locationChips' :
-                               type === 'time' ? 'timeChips' :
-                               type === 'activity' ? 'activityChips' : 'sortChips';
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.querySelectorAll('.chip').forEach(chip => {
-                    if (chip.dataset.value === value) {
-                        chip.classList.add('selected');
-                    } else {
-                        chip.classList.remove('selected');
-                    }
-                });
-            }
-
-            applyFilters();
-        }
-
-        // 应用筛选
-        function applyFilters() {
-            let filtered = [...filterState.allDesigns];
-
-            // 搜索筛选
-            if (filterState.search) {
-                const searchLower = filterState.search.toLowerCase();
-                filtered = filtered.filter(d =>
-                    (d.user_input && d.user_input.toLowerCase().includes(searchLower)) ||
-                    (d.design_description && d.design_description.toLowerCase().includes(searchLower)) ||
-                    (d.location_label && d.location_label.toLowerCase().includes(searchLower))
-                );
-            }
-
-            // 位置筛选
-            if (filterState.location !== 'all') {
-                filtered = filtered.filter(d => d.location_label === filterState.location);
-            }
-
-            // 使用时间筛选
-            if (filterState.time !== 'all') {
-                filtered = filtered.filter(d => d.time_preference === filterState.time);
-            }
-
-            // 使用方式筛选
-            if (filterState.activity !== 'all') {
-                filtered = filtered.filter(d => d.activity_preference === filterState.activity);
-            }
-
-            // 排序
-            if (filterState.sort === 'popular') {
-                filtered.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
-            } else {
-                filtered.sort((a, b) => {
-                    const parseDate = (val) => {
-                        if (!val) return 0;
-                        const d = new Date(val);
-                        return isNaN(d.getTime()) ? 0 : d.getTime();
-                    };
-                    return parseDate(b.created_at) - parseDate(a.created_at);
-                });
-            }
-
-            filterState.filteredDesigns = filtered;
-            updateResultsCount();
-            updateMapMarkers();
-        }
-
-        // 更新结果数量
-        function updateResultsCount() {
-            const countEl = document.getElementById('resultsCount');
-            if (countEl) {
-                countEl.textContent = filterState.filteredDesigns.length;
-            }
-        }
-
-        // 更新地图标记点
-        function updateMapMarkers() {
-            if (!galleryEngine) return;
-
-            galleryEngine.clearMarkers();
-
-            if (filterState.filteredDesigns.length > 0) {
-                const designs = filterState.filteredDesigns.map(d => ({
-                    id: d.id,
-                    location_x: d.location_x,
-                    location_y: d.location_y,
-                    location_z: 0,
-                    likesCount: d.likes_count,
-                    label: d.location_label,
-                }));
-                galleryEngine.addDesignMarkers(designs);
-            }
-        }
-
-        // 初始化筛选面板
-        function initFilterPanel() {
-            // 搜索输入
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    filterState.search = e.target.value;
-                    applyFilters();
-                });
-            }
-
-            // 位置筛选
-            document.querySelectorAll('#locationChips .chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    handleChipClick('location', chip.dataset.value);
-                });
+                galleryGrid.appendChild(card);
             });
 
-            // 使用时间筛选
-            document.querySelectorAll('#timeChips .chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    handleChipClick('time', chip.dataset.value);
-                });
-            });
+            // 更新统计数据
+            document.getElementById('totalDesigns').textContent = MOCK_DESIGNS.length;
+            document.getElementById('totalLikes').textContent = MOCK_DESIGNS.reduce((sum, d) => sum + d.likes, 0);
+            document.getElementById('totalComments').textContent = MOCK_DESIGNS.reduce((sum, d) => sum + d.comments.length, 0);
 
-            // 使用方式筛选
-            document.querySelectorAll('#activityChips .chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    handleChipClick('activity', chip.dataset.value);
-                });
-            });
-
-            // 排序筛选
-            document.querySelectorAll('#sortChips .chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    handleChipClick('sort', chip.dataset.value);
-                });
-            });
+            console.log('渲染完成，共', galleryGrid.children.length, '个卡片');
         }
 
-        // 初始化
-        initFilterPanel();
-        renderGalleryData();
+        // 评论弹窗相关
+        let currentDesignId = null;
+        const commentModal = document.getElementById('commentModal');
+        const commentModalClose = document.getElementById('commentModalClose');
+        const commentSubmitBtn = document.getElementById('commentSubmitBtn');
+        const commentInput = document.getElementById('commentInput');
+        const commentList = document.getElementById('commentList');
+        const commentCount = document.getElementById('commentCount');
+        const commentDesignTitle = document.getElementById('commentDesignTitle');
+        const commentDesignLocation = document.getElementById('commentDesignLocation');
 
-        // 点赞功能 — 使用 data 属性管理状态
-        const likeButton = document.getElementById('likeButton');
+        // 打开评论弹窗
+        function openCommentModal(designId, event) {
+            if (event) event.stopPropagation();
 
-        function initLikeButton(designId, likesCount) {
-            const likeCountEl = document.getElementById('likeCount');
+            const design = MOCK_DESIGNS.find(d => d.id === designId);
+            if (!design) return;
 
-            // Store state on button data attributes
-            likeButton.dataset.designId = designId;
-            likeButton.dataset.liked = 'false';
-            likeButton.dataset.likesCount = String(likesCount);
+            currentDesignId = designId;
+            commentDesignTitle.textContent = design.title;
+            commentDesignLocation.textContent = design.location;
 
-            if (likeCountEl) likeCountEl.textContent = likesCount;
-            likeButton.classList.remove('liked');
+            renderComments(design.comments);
+            updateCommentInputPlaceholder();
+
+            commentModal.classList.add('visible');
         }
 
-        async function handleLikeClick() {
-            const sessionId = getState('sessionId');
-            if (!sessionId) {
+        // 关闭评论弹窗
+        function closeCommentModal() {
+            commentModal.classList.remove('visible');
+            currentDesignId = null;
+            commentInput.value = '';
+        }
+
+        // 渲染评论列表
+        function renderComments(comments) {
+            commentCount.textContent = `(${comments.length})`;
+
+            if (!comments || comments.length === 0) {
+                commentList.innerHTML = `
+                    <div class="no-comments">
+                        <span lang="zh">暂无评论，快来抢沙发吧！</span>
+                        <span lang="en">No comments yet, be the first!</span>
+                    </div>
+                `;
+                return;
+            }
+
+            commentList.innerHTML = comments.map(comment => `
+                <div class="comment-item">
+                    <div class="comment-avatar">${comment.author.charAt(0)}</div>
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            <span class="comment-author">${comment.author}</span>
+                            <span class="comment-time">${comment.time}</span>
+                        </div>
+                        <div class="comment-text">${comment.content}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 提交评论
+        function submitComment() {
+            const content = commentInput.value.trim();
+
+            if (!content) {
                 Toast.show(
-                    APP_STATE.language === 'zh' ? '请先开始探索' : 'Please start exploring first',
+                    currentLanguage === 'zh' ? '请输入评论内容' : 'Please enter comment',
                     'warning'
                 );
                 return;
             }
 
-            const designId = likeButton.dataset.designId;
-            if (!designId) return;
+            const design = MOCK_DESIGNS.find(d => d.id === currentDesignId);
+            if (!design) return;
 
-            const liked = likeButton.dataset.liked === 'true';
-            const likeCountEl = document.getElementById('likeCount');
+            // 添加新评论
+            const newComment = {
+                author: '我',
+                content: content,
+                time: currentLanguage === 'zh' ? '刚刚' : 'Just now'
+            };
 
-            try {
-                let response;
-                if (liked) {
-                    response = await API.unlikeDesign(designId);
-                    if (response.code === 0) {
-                        likeButton.dataset.liked = 'false';
-                        likeButton.dataset.likesCount = String(Math.max(0, Number(likeButton.dataset.likesCount) - 1));
-                        likeButton.classList.remove('liked');
-                        Toast.show(
-                            APP_STATE.language === 'zh' ? '已取消点赞' : 'Unliked',
-                            'info'
-                        );
-                    }
-                } else {
-                    response = await API.likeDesign(designId);
-                    if (response.code === 0) {
-                        likeButton.dataset.liked = 'true';
-                        likeButton.dataset.likesCount = String(Number(likeButton.dataset.likesCount) + 1);
-                        likeButton.classList.add('liked');
-                        Toast.show(
-                            APP_STATE.language === 'zh' ? '已点赞' : 'Liked!',
-                            'success'
-                        );
-                    }
-                }
+            design.comments.unshift(newComment);
+            commentInput.value = '';
 
-                if (likeCountEl && response.data && response.data.likes_count !== undefined) {
-                    likeCountEl.textContent = response.data.likes_count;
-                    likeButton.dataset.likesCount = String(response.data.likes_count);
-                } else if (likeCountEl) {
-                    likeCountEl.textContent = likeButton.dataset.likesCount;
-                }
-            } catch (err) {
-                console.error('点赞操作失败:', err);
-                Toast.show(
-                    APP_STATE.language === 'zh' ? '操作失败，请重试' : 'Operation failed, please try again',
-                    'error'
-                );
-            }
+            // 重新渲染
+            renderComments(design.comments);
+            renderGallery();
+
+            Toast.show(
+                currentLanguage === 'zh' ? '评论已发布' : 'Comment published',
+                'success'
+            );
         }
 
-        // Bind click handler once
-        likeButton.addEventListener('click', handleLikeClick);
+        // 事件监听
+        commentModalClose.addEventListener('click', closeCommentModal);
 
-        // 点击光点时从 API 获取设计详情
-        async function openDesignModal(designId) {
-            const overlay = document.getElementById('modalOverlay');
-            const inputText = document.getElementById('modalInputText');
-            const resultText = document.getElementById('modalResultText');
-            const modalImage = document.getElementById('modalImage');
-
-            inputText.textContent = APP_STATE.language === 'zh' ? '加载中...' : 'Loading...';
-            resultText.textContent = APP_STATE.language === 'zh' ? '加载中...' : 'Loading...';
-            modalImage.style.display = 'none';
-            overlay.classList.add('visible');
-
-            try {
-                const detailRes = await fetch(`${API_BASE_URL}/designs/${designId}`);
-                const detailData = await detailRes.json();
-
-                if (detailData.code === 0 && detailData.data) {
-                    const d = detailData.data;
-                    inputText.textContent = d.user_input || d.location_label || '-';
-                    resultText.textContent = d.ai_response || d.design_description || '-';
-
-                    if (d.generated_image && d.generated_image !== '生成中...') {
-                        modalImage.src = d.generated_image;
-                        modalImage.style.display = 'block';
-                    }
-
-                    // 初始化点赞功能
-                    initLikeButton(designId, d.likes_count || 0);
-                }
-            } catch (err) {
-                console.error('获取设计详情失败:', err);
-                inputText.textContent = APP_STATE.language === 'zh' ? '加载失败' : 'Failed to load';
-                resultText.textContent = '';
+        commentModal.addEventListener('click', (e) => {
+            if (e.target === commentModal) {
+                closeCommentModal();
             }
-        }
-
-        // Modal controls
-        const modalOverlay = document.getElementById('modalOverlay');
-        const modalClose = document.getElementById('modalClose');
-
-        modalClose.addEventListener('click', () => {
-            modalOverlay.classList.remove('visible');
         });
 
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                modalOverlay.classList.remove('visible');
+        commentSubmitBtn.addEventListener('click', submitComment);
+
+        // 点赞功能
+        function toggleLike(designId, event) {
+            event.stopPropagation();
+            const design = MOCK_DESIGNS.find(d => d.id === designId);
+            if (!design) return;
+
+            if (likedDesigns.has(designId)) {
+                likedDesigns.delete(designId);
+                design.likes--;
+            } else {
+                likedDesigns.add(designId);
+                design.likes++;
+                Toast.show(
+                    currentLanguage === 'zh' ? '已点赞' : 'Liked!',
+                    'success'
+                );
             }
+
+            renderGallery();
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('页面加载完成，开始初始化');
+            updateLanguageDisplay();
+            renderGallery();
         });
     </script>
 </body>

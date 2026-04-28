@@ -12,24 +12,150 @@
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/loading.css">
-    <link rel="stylesheet" href="/engine/engine.css">
+    <style>
+        /* 全景图容器 */
+        .panorama-container {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            min-height: 500px;
+            max-height: 800px;
+            overflow: hidden;
+            background: #000;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .panorama-view {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .panorama-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        /* 导航箭头 */
+        .nav-arrow {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-arrow:hover {
+            background: white;
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-arrow svg {
+            width: 28px;
+            height: 28px;
+            stroke: #660874;
+        }
+
+        .nav-arrow.top { top: 20px; left: 50%; transform: translateX(-50%); }
+        .nav-arrow.bottom { bottom: 20px; left: 50%; transform: translateX(-50%); }
+        .nav-arrow.left { left: 20px; top: 50%; transform: translateY(-50%); }
+        .nav-arrow.right { right: 20px; top: 50%; transform: translateY(-50%); }
+
+        .nav-arrow.top:hover { transform: translateX(-50%) scale(1.1); }
+        .nav-arrow.bottom:hover { transform: translateX(-50%) scale(1.1); }
+        .nav-arrow.left:hover { transform: translateY(-50%) scale(1.1); }
+        .nav-arrow.right:hover { transform: translateY(-50%) scale(1.1); }
+
+        /* 中心选择按钮 */
+        .center-select-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            background: rgba(102, 8, 116, 0.9);
+            color: white;
+            border: 3px solid white;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 15;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .center-select-btn:hover {
+            background: rgba(102, 8, 116, 1);
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        /* 位置信息 */
+        .location-info {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 16px 32px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            z-index: 8;
+        }
+
+        .location-name {
+            font-weight: 700;
+            font-size: 20px;
+            color: #660874;
+            margin-bottom: 4px;
+        }
+
+        .location-desc {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .location-info {
+                padding: 12px 24px;
+                max-width: 90%;
+            }
+
+            .location-name {
+                font-size: 18px;
+            }
+
+            .center-select-btn {
+                padding: 16px 32px;
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Navigation -->
     <nav class="nav">
         <div class="nav-content">
             <a href="landing.html" class="nav-logo">
                 <span style="display: flex; align-items: center; gap: 12px;">
                     <img src="https://www.sigs.tsinghua.edu.cn/_upload/tpl/00/02/2/template2/css/img/h5_logo.png"
-                         alt="Tsinghua SIGS"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="display: none;">
-                        <circle cx="24" cy="24" r="20" fill="white"/>
-                        <path d="M24 14V34M14 24H34" stroke="#660874" stroke-width="3" stroke-linecap="round"/>
-                    </svg>
+                         alt="Tsinghua SIGS">
                     <span>清华SIGS</span>
                 </span>
             </a>
@@ -38,7 +164,7 @@
                     <a href="landing.html" class="nav-link">
                         <span lang="zh">首页</span><span lang="en">Home</span>
                     </a>
-                    <a href="explore.html" class="nav-link">
+                    <a href="explore.html" class="nav-link active">
                         <span lang="zh">探索</span><span lang="en">Explore</span>
                     </a>
                     <a href="create.html" class="nav-link">
@@ -70,32 +196,48 @@
                 <span lang="en">Explore Tsinghua SIGS Campus</span>
             </div>
             <p class="explore-desc">
-                <span lang="zh">找一个让你有感觉的地方——可以是你觉得不够好的，也可以是你想象中它本来的样子</span>
-                <span lang="en">Find a place that speaks to you—somewhere that needs improvement, or somewhere as you imagine it could be</span>
+                <span lang="zh">点击方向箭头浏览不同角度，点击中间按钮选择这个场景开始创作</span>
+                <span lang="en">Click arrows to browse different angles, click center button to select this scene for creation</span>
             </p>
         </div>
 
-        <div class="campus-map-container">
-            <div class="campus-map">
-                <div class="campus-engine-container" id="campusContainer"></div>
-            </div>
+        <!-- 全景图容器 -->
+        <div class="panorama-container" id="panoramaContainer">
+            <div class="panorama-view" id="panoramaView">
+                <img class="panorama-image" id="panoramaImage" src="" alt="全景图">
 
-            <div class="explore-modes">
-                <div class="mode-card active" data-mode="orbit">
-                    <svg class="mode-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="10" cy="10" r="7"/>
-                        <path d="M10 6V10L13 13" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 6C14 6 15 7 15 8C15 9 14 10 14 10" stroke-linecap="round"/>
+                <!-- 导航箭头 -->
+                <div class="nav-arrow top" id="navTop" title="向前">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 4L16 8M12 4L8 8M12 4V16M4 20H20" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span lang="zh">自动漫游</span><span lang="en">Auto Roam</span>
                 </div>
-                <div class="mode-card" data-mode="free">
-                    <svg class="mode-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M10 3L16 10L10 17L4 10L10 3Z" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="10" cy="10" r="2" fill="currentColor"/>
-                        <path d="M10 3V6M10 14V17M3 10H6M14 10H17" stroke-linecap="round"/>
+                <div class="nav-arrow bottom" id="navBottom" title="向后">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20L16 16M12 20L8 16M12 20V8M4 4H20" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span lang="zh">自由探索</span><span lang="en">Free Explore</span>
+                </div>
+                <div class="nav-arrow left" id="navLeft" title="向左">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 12L8 8M4 12L8 16M4 12H16M20 4V20" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="nav-arrow right" id="navRight" title="向右">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 12L16 8M20 12L16 16M20 12H8M4 4V20" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <!-- 中心选择按钮 -->
+                <button class="center-select-btn" id="selectBtn">
+                    <span lang="zh">✨ 选择这个场景开始创作</span>
+                    <span lang="en">✨ Select This Scene to Create</span>
+                </button>
+
+                <!-- 位置信息 -->
+                <div class="location-info" id="locationInfo">
+                    <div class="location-name" id="locationName">清华SIGS校园中心</div>
+                    <div class="location-desc" id="locationDesc">点击中间按钮选择场景</div>
                 </div>
             </div>
         </div>
@@ -106,18 +248,44 @@
     <script src="../js/state.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/router.js"></script>
+    <script>
+        // 用户提供的全景图（本地路径）
+        const USER_PANORAMA_URL = 'images/panoramas/campus-panorama.jpg';
 
-    <!-- Three.js via CDN Import Map -->
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-        }
-    }
-    </script>
-    <script type="module">
-        // Language Switcher (需要在引擎加载前初始化)
+        // 不同角度的画面（模拟上下左右导航）
+        const PANORAMA_VIEWS = {
+            'center': {
+                name: { zh: '清华SIGS校园中心', en: 'Tsinghua SIGS Campus Center' },
+                image: USER_PANORAMA_URL
+            },
+            'top': {
+                name: { zh: '向北看 - 教学楼方向', en: 'Looking North - Academic Buildings' },
+                image: USER_PANORAMA_URL
+            },
+            'bottom': {
+                name: { zh: '向南看 - 生活区方向', en: 'Looking South - Living Area' },
+                image: USER_PANORAMA_URL
+            },
+            'left': {
+                name: { zh: '向西看 - 创新区方向', en: 'Looking West - Innovation Zone' },
+                image: USER_PANORAMA_URL
+            },
+            'right': {
+                name: { zh: '向东看 - 运动区方向', en: 'Looking East - Sports Zone' },
+                image: USER_PANORAMA_URL
+            }
+        };
+
+        // 当前状态
+        let currentView = 'center';
+
+        // DOM 元素
+        const panoramaImage = document.getElementById('panoramaImage');
+        const locationName = document.getElementById('locationName');
+        const locationDesc = document.getElementById('locationDesc');
+        const selectBtn = document.getElementById('selectBtn');
+
+        // 语言切换
         const langSwitcher = document.getElementById('langSwitcher');
 
         function updateLanguageDisplay() {
@@ -137,9 +305,9 @@
                 enSpan.classList.add('lang-active');
                 zhSpan.classList.remove('lang-active');
             }
-        }
 
-        updateLanguageDisplay();
+            updateLocationDisplay();
+        }
 
         langSwitcher.addEventListener('click', (e) => {
             const clickedSpan = e.target.closest('[lang]');
@@ -152,91 +320,102 @@
             localStorage.setItem('lang', APP_STATE.language);
             updateLanguageDisplay();
 
-            if (window.campusEngine) {
-                window.campusEngine.setLanguage(APP_STATE.language);
-            }
+            document.body.style.opacity = '0.8';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 150);
         });
 
-        // 确保页面加载时有 session
-        (async () => {
-            let sessionId = getState('sessionId');
-            if (!sessionId) {
-                try {
-                    const res = await API.createSession();
-                    sessionId = res.data.session_id;
-                    setState('sessionId', sessionId);
-                    APP_STATE.sessionId = sessionId;
-                } catch (err) {
-                    console.error('创建会话失败:', err);
-                }
-            } else {
-                APP_STATE.sessionId = sessionId;
+        // 更新位置信息
+        function updateLocationDisplay() {
+            const view = PANORAMA_VIEWS[currentView];
+            if (view) {
+                locationName.textContent = view.name[APP_STATE.language];
+                locationDesc.textContent = APP_STATE.language === 'zh' ? '点击中间按钮选择这个场景' : 'Click center button to select this scene';
             }
-        })();
-
-        // 尝试初始化 3D 引擎
-        try {
-            const { CampusEngine } = await import('/engine/index.js');
-
-            const container = document.getElementById('campusContainer');
-            if (!container) throw new Error('campusContainer not found');
-
-            const engine = new CampusEngine({
-                container: container,
-                mode: 'explore',
-                cameraMode: 'orbit',
-                showBuildings: true,
-                showMarkers: true,
-                language: APP_STATE.language,
-            });
-            window.campusEngine = engine;
-
-            engine.on('location-selected', async (data) => {
-                const screenshot = await engine.captureScreenshot();
-
-                const locationData = {
-                    location: data.buildingId,
-                    label: data.label,
-                    mood: data.mood,
-                    location_x: data.screenPercent.left,
-                    location_y: data.screenPercent.top,
-                    location_z: data.worldPosition.y || 0,
-                };
-
-                APP_STATE.selectedLocation = locationData;
-                setState('selectedLocation', locationData);
-                setState('originalScreenshot', screenshot);
-
-                Toast.show(
-                    APP_STATE.language === 'zh'
-                        ? `已选择: ${data.label}`
-                        : `Selected: ${data.label}`,
-                    'info'
-                );
-
-                // 立即跳转到创作页面
-                setTimeout(() => {
-                    window.location.href = 'create.html';
-                }, 500);
-            });
-
-            engine.start();
-            console.log('[Engine] 3D 校园引擎启动成功');
-
-            // Mode toggle — 切换相机模式
-            document.querySelectorAll('.mode-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
-                    card.classList.add('active');
-
-                    const mode = card.dataset.mode;
-                    engine.setCameraMode(mode);
-                });
-            });
-        } catch (err) {
-            console.error('[Engine] 3D 引擎加载失败，使用回退模式:', err);
-            Toast.show('3D 引擎加载失败，请刷新页面重试', 'error');
         }
+
+        // 切换视图
+        function switchView(viewName) {
+            if (!PANORAMA_VIEWS[viewName]) return;
+
+            currentView = viewName;
+            const view = PANORAMA_VIEWS[viewName];
+
+            panoramaImage.style.opacity = '0';
+
+            setTimeout(() => {
+                panoramaImage.src = view.image;
+                panoramaImage.style.opacity = '1';
+                updateLocationDisplay();
+            }, 300);
+        }
+
+        // 导航箭头事件
+        document.getElementById('navTop').addEventListener('click', () => switchView('top'));
+        document.getElementById('navBottom').addEventListener('click', () => switchView('bottom'));
+        document.getElementById('navLeft').addEventListener('click', () => switchView('left'));
+        document.getElementById('navRight').addEventListener('click', () => switchView('right'));
+
+        // 选择场景
+        selectBtn.addEventListener('click', () => {
+            const view = PANORAMA_VIEWS[currentView];
+
+            const locationData = {
+                location: currentView,
+                label: view.name[APP_STATE.language],
+                mood: view.name[APP_STATE.language],
+                location_x: 50,
+                location_y: 50,
+                location_z: 0,
+                type: 'scene',
+                panorama_image: view.image
+            };
+
+            APP_STATE.selectedLocation = locationData;
+            setState('selectedLocation', locationData);
+            setState('panoramaImage', view.image);
+
+            Toast.show(
+                APP_STATE.language === 'zh'
+                    ? `已选择：${view.name[APP_STATE.language]}`
+                    : `Selected: ${view.name[APP_STATE.language]}`,
+                'success'
+            );
+
+            setTimeout(() => {
+                window.location.href = 'create.html';
+            }, 800);
+        });
+
+        // 初始化
+        function init() {
+            updateLanguageDisplay();
+
+            // 加载全景图
+            const initialView = PANORAMA_VIEWS[currentView];
+            panoramaImage.src = initialView.image;
+
+            // 确保有session
+            (async () => {
+                let sessionId = getState('sessionId');
+                if (!sessionId) {
+                    try {
+                        const res = await API.createSession();
+                        sessionId = res.data.session_id;
+                        setState('sessionId', sessionId);
+                        APP_STATE.sessionId = sessionId;
+                    } catch (err) {
+                        console.error('创建会话失败:', err);
+                    }
+                } else {
+                    APP_STATE.sessionId = sessionId;
+                }
+            })();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
